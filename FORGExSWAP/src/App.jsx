@@ -8,7 +8,7 @@ function App() {
 
   return (
     <>
-      <div className=""></div>
+      <div className="bg-gray-200 dark:bg-gray-800 h-[100vh] w-full">hey</div>
     </>
   );
 }

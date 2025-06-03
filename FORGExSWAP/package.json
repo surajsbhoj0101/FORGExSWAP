@@ -10,12 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@rainbow-me/rainbowkit": "^2.2.5",
     "@tailwindcss/vite": "^4.1.8",
+    "@tanstack/react-query": "^5.79.2",
+    "ethers": "^6.14.3",
     "lucide-react": "^0.511.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
-    "react-router-dom": "^7.6.1"
+    "react-router-dom": "^7.6.1",
+    "viem": "^2.30.6",
+    "wagmi": "^2.15.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

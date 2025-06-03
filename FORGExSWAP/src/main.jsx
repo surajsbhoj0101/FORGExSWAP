@@ -6,6 +6,8 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import { ThemeProvider } from "./contexts/ThemeContext.jsx";
+import { useTheme } from "./contexts/ThemeContext";
+import AppProviders from "./components/AppProviders.jsx";
 
 const router = createBrowserRouter([
   {
@@ -13,8 +15,8 @@ const router = createBrowserRouter([
     element: (
       <>
         <Navbar />
-        <App />
-        {/* <Footer /> */}
+        <App className="pb-20" />
+        <Footer className="flex bg-red-500" />
       </>
     ),
   },
@@ -23,7 +25,9 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider>
-      <RouterProvider router={router} />
+      <AppProviders>
+        <RouterProvider router={router} />
+      </AppProviders>
     </ThemeProvider>
   </StrictMode>
 );
