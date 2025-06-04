@@ -11,7 +11,7 @@ import { FaSquareXTwitter } from "react-icons/fa6";
 function Footer() {
   const { isDarkMode, toggleDark } = useTheme();
   return (
-    <div className="fixed justify-between items-center bottom-0 left-0  z-50  w-full bg-white dark:bg-gray-900 hidden min-[914px]:flex">
+    <div className="fixed px-2 justify-between items-center bottom-0 left-0  z-50  w-full bg-white dark:bg-gray-900 hidden min-[914px]:flex">
       <div></div>
       <div className="flex space-x-1 items-center">
         <div className="text-gray-700 px-2 rounded-xs hover:dark:bg-gray-800 hover:bg-gray-300 dark:text-gray-200 flex space-x-1 text-sm font-semibold items-center">

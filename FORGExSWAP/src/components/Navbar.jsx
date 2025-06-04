@@ -22,9 +22,12 @@ function Navbar() {
       <header className="shadow-md relative z-40 px-3 lg:px-16 min-[490px]:py-4 min-[490px]:px-6 py-2 flex items-center justify-between bg-white dark:bg-gray-900">
         {/* Logo */}
         <div className="logo">
-          <p className="min-[490px]:text-2xl text-xl md:text-3xl font-extrabold tracking-wide bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 text-transparent bg-clip-text drop-shadow-md">
+          <Link
+            to="/"
+            className="min-[490px]:text-2xl text-xl md:text-3xl font-extrabold tracking-wide bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 text-transparent bg-clip-text drop-shadow-md"
+          >
             FORGExSWAP
-          </p>
+          </Link>
         </div>
 
         {/* Desktop Nav */}
@@ -48,7 +51,7 @@ function Navbar() {
             Portfolio
           </Link>
           <Link
-            to="#"
+            to="/trade"
             className="hover:text-pink-500 transition-colors duration-300"
           >
             Trade
@@ -162,7 +165,7 @@ function Navbar() {
           </Link>
 
           <Link
-            to="#"
+            to="/trade"
             onClick={closeSidebar}
             className="hover:text-pink-500 transition duration-200 transform hover:scale-105"
           >
@@ -198,6 +201,18 @@ function Navbar() {
               <FaSquareXTwitter size={30} />
             </Link>
           </div>
+
+          <button
+            aria-label="Toggle Dark Mode"
+            onClick={toggleDark}
+            className="p-1 px-2 rounded-xs cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-800 transition-colors duration-200"
+          >
+            <img
+              className="w-5 h-5"
+              src={isDarkMode ? SunIcon : MoonIcon}
+              alt={isDarkMode ? "Light Mode" : "Dark Mode"}
+            />
+          </button>
         </div>
       </div>
     </>

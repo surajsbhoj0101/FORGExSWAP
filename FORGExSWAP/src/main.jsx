@@ -8,6 +8,7 @@ import Footer from "./components/Footer.jsx";
 import { ThemeProvider } from "./contexts/ThemeContext.jsx";
 import { useTheme } from "./contexts/ThemeContext";
 import AppProviders from "./components/AppProviders.jsx";
+import Trade from "./pages/Trade.jsx";
 
 const router = createBrowserRouter([
   {
@@ -15,8 +16,18 @@ const router = createBrowserRouter([
     element: (
       <>
         <Navbar />
-        <App className="pb-20" />
-        <Footer className="flex bg-red-500" />
+        <App />
+        <Footer />
+      </>
+    ),
+  },
+  {
+    path: "/trade",
+    element: (
+      <>
+        <Navbar />
+        <Trade />
+        <Footer />
       </>
     ),
   },
