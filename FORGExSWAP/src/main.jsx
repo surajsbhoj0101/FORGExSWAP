@@ -9,6 +9,7 @@ import { ThemeProvider } from "./contexts/ThemeContext.jsx";
 import { useTheme } from "./contexts/ThemeContext";
 import AppProviders from "./components/AppProviders.jsx";
 import Trade from "./pages/Trade.jsx";
+import Swap from "./pages/swap.jsx";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,15 @@ const router = createBrowserRouter([
         <Navbar />
         <Trade />
         <Footer />
+      </>
+    ),
+  },{
+    path:"/swap",
+    element:(
+      <>
+        <Navbar/>
+        <Swap/>
+        <Footer/>
       </>
     ),
   },

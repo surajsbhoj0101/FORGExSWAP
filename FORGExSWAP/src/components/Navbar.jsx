@@ -33,7 +33,7 @@ function Navbar() {
         {/* Desktop Nav */}
         <nav className="hidden min-[1150px]:flex gap-x-8 text-base md:text-lg font-semibold text-gray-700 dark:text-gray-200">
           <Link
-            to="#"
+            to="/swap"
             className="hover:text-cyan-500 text-shadow-2xl transition-colors duration-300"
           >
             Swap Tokens
@@ -141,7 +141,7 @@ function Navbar() {
 
           {/* Navigation Links */}
           <Link
-            to="#"
+            to="/swap"
             onClick={closeSidebar}
             className="hover:text-cyan-500 transition duration-200 transform hover:scale-105"
           >
