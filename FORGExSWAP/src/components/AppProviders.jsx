@@ -7,7 +7,7 @@ import {
   lightTheme,
 } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
-import { mainnet, sepolia } from "wagmi/chains";
+import { mainnet, sepolia,monadTestnet } from "wagmi/chains";
 
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { useTheme } from "../contexts/ThemeContext";
@@ -16,7 +16,7 @@ const projectId = import.meta.env.PROJECT_ID;
 const config = getDefaultConfig({
   appName: "FORGExSWAP",
   projectId: "449de68e4da511968a82e62574362351",
-  chains: [mainnet, sepolia],
+  chains: [ monadTestnet],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 
