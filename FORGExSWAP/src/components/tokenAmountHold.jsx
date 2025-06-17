@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import IERC20 from "@openzeppelin/contracts/build/contracts/ERC20.json";
 import { Contract, JsonRpcProvider, ZeroAddress, formatUnits } from 'ethers';
+import { zeroAddress } from 'viem';
 
 
 function TokenAmountHold({ tokenAddress }) {
+  if(tokenAddress ==='') tokenAddress = zeroAddress
   const [balance, setBalance] = useState('0'); 
   const provider = new JsonRpcProvider("https://testnet-rpc.monad.xyz");
   const { isConnected, address } = useAccount();

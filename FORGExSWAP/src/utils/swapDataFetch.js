@@ -8,7 +8,7 @@ const provider = new JsonRpcProvider("https://testnet-rpc.monad.xyz");
 const factoryAddress = "0x733e88f248b742db6c14c0b1713af5ad7fdd59d0"; //A Factory Contract is a smart contract whose main job is to deploy other contracts.
 const factory = new Contract(factoryAddress, IUniswapV2Factory.abi, provider); 
 
-export async function FetchSwapData(tokenA, tokenB, amountInRaw,pairAddress) {
+export async function FetchSwapData(tokenA, amountInRaw,pairAddress) {
   
  
   const pair = new Contract(pairAddress, IUniswapV2Pair.abi, provider);
@@ -51,7 +51,9 @@ export async function FetchSwapData(tokenA, tokenB, amountInRaw,pairAddress) {
 
   return {
     
-    amountOut: formatUnits(amountOut, outDecimals),   // BigInt
+    amountOut: formatUnits(amountOut, outDecimals),
+    inDecimal:inDecimals ,
+    amountOutRaw:amountOut  // BigInt
   };
 }
 
