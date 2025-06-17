@@ -8,8 +8,13 @@ import TokenAmountHold from '../components/tokenAmountHold';
 import { swapTokens } from '../utils/swapTokens';
 import ToastContainer from '../components/toastContainer';
 import { toast } from "react-toastify";
+import imageDark from '../assets/images/ChatGPT Image Jun 17, 2025, 01_16_02 PM.png'
+import imageLight from '../assets/images/ChatGPT Image Jun 17, 2025, 01_16_10 PM.png'
+import { useTheme } from "../contexts/ThemeContext";
+
 
 function Swap() {
+  const { isDarkMode, toggleDark } = useTheme();
   const { data: walletClient } = useWalletClient();
   const { isConnected, address } = useAccount();
   const isUserInput = useRef(false); //Unlike useState, changing .current does NOT re-render the component.
@@ -182,7 +187,7 @@ function Swap() {
 
 
   return (
-    <div className="min-h-screen relative bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center px-4">
+    <div style={{ backgroundImage: `${isDarkMode?(`url(${imageDark})`):(`url(${imageLight})`)}` }} className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed  relative bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 space-y-2 sm:space-y-6">
         <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">
           Swap Here
@@ -271,8 +276,8 @@ function Swap() {
                   onClick={swapHandle}
                   disabled={isSwapping}
                   className={`w-full py-3 rounded-lg font-semibold transition duration-200 ${isSwapping
-                      ? 'bg-gray-400 text-white dark:bg-gray-600 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white'
+                    ? 'bg-gray-400 text-white dark:bg-gray-600 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white'
                     }`}
                 >
                   {isSwapping ? 'Swapping...' : 'Swap'}
