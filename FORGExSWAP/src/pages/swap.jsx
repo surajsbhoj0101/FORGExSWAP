@@ -98,10 +98,10 @@ function Swap() {
       });
 
       if (result.isTxSuccessful) {
-        toast.success("✅ Swap successful!");
+        toast.success(" Swap successful!");
 
       } else {
-        toast.error("❌ Swap failed!");
+        toast.error("Swap failed!");
       }
     } catch (err) {
       toast.error("Swap failed:", err);
@@ -182,7 +182,7 @@ function Swap() {
 
 
   return (
-    <div className="min-h-screen bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center px-4">
+    <div className="min-h-screen relative bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 space-y-2 sm:space-y-6">
         <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">
           Swap Here
@@ -261,23 +261,23 @@ function Swap() {
         <div className='w-full flex items-center justify-center'>
           {isConnected ? (
             isPairExists ? (
-
               isFetchingQuotes ? (
-                <div
-
-                  className="w-full space-x-4 dark:bg-gray-600 flex items-center justify-center py-3 rounded-lg bg-gray-400 text-white font-semibold transition duration-200"
-                >
-                  <div>Fetching quotes</div> <div className='border-dashed rounded-full h-3 w-3 p-2 animate-spin border-2 border-blue-500'></div>
+                <div className="w-full space-x-4 dark:bg-gray-600 flex items-center justify-center py-3 rounded-lg bg-gray-400 text-white font-semibold transition duration-200">
+                  <div>Fetching quotes</div>
+                  <div className="border-dashed rounded-full h-3 w-3 p-2 animate-spin border-2 border-blue-500"></div>
                 </div>
-
-
-              ) : (<button
-                onClick={swapHandle}
-                className="w-full py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold transition duration-200"
-              >
-                Swap
-              </button>)
-
+              ) : (
+                <button
+                  onClick={swapHandle}
+                  disabled={isSwapping}
+                  className={`w-full py-3 rounded-lg font-semibold transition duration-200 ${isSwapping
+                      ? 'bg-gray-400 text-white dark:bg-gray-600 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white'
+                    }`}
+                >
+                  {isSwapping ? 'Swapping...' : 'Swap'}
+                </button>
+              )
             ) : (
               <button className="w-full py-3 rounded-lg bg-red-500 hover:bg-red-600 text-white font-semibold transition duration-200">
                 Pair doesn't exist
@@ -286,6 +286,7 @@ function Swap() {
           ) : (
             <ConnectButton />
           )}
+
         </div>
       </div>
     </div>
