@@ -72,11 +72,13 @@ function Swap() {
 
     setValueData(prev => ({
       ...prev,
-      buy: sellTemp,
+     
       sell: buyTemp,
       sellAddress: buyAddTemp,
       buyAddress: sellAddTemp
     }));
+
+    isUserInput.current = true;
   };
 
   // SWAP HANDLER

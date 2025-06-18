@@ -77,17 +77,7 @@ function Navbar() {
             />
           </div>
 
-          {/* <button
-            aria-label="Toggle Dark Mode"
-            onClick={toggleDark}
-            className="p-2 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-          >
-            <img
-              className="w-6 h-6"
-              src={isDarkMode ? SunIcon : MoonIcon}
-              alt={isDarkMode ? "Light Mode" : "Dark Mode"}
-            />
-          </button> */}
+
 
           {/* Mobile Menu Toggle */}
           <div
@@ -104,9 +94,8 @@ function Navbar() {
 
       {/* Full-screen Sidebar Overlay */}
       <div
-        className={`fixed opacity-90 min-[1150px]:hidden  inset-0 z-50 bg-white dark:bg-gray-900 transform transition-transform duration-300 ${
-          isSidebar ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed opacity-90 min-[1150px]:hidden  inset-0 z-50 bg-white dark:bg-gray-900 transform transition-transform duration-300 ${isSidebar ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         <div className="flex justify-end p-4">
           <button
