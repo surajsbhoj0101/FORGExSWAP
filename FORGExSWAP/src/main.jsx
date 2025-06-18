@@ -8,7 +8,7 @@ import Footer from "./components/Footer.jsx";
 import { ThemeProvider } from "./contexts/ThemeContext.jsx";
 import { useTheme } from "./contexts/ThemeContext";
 import AppProviders from "./components/AppProviders.jsx";
-import Trade from "./pages/Trade.jsx";
+import TradePriceShow from "./pages/trade/tradePriceShow.jsx";
 import Swap from "./pages/swap.jsx";
 
 const router = createBrowserRouter([
@@ -27,7 +27,7 @@ const router = createBrowserRouter([
     element: (
       <>
         <Navbar />
-        <Trade />
+        <TradePriceShow />
         <Footer />
       </>
     ),

@@ -40,7 +40,7 @@ function Footer() {
           </Link>
         </div>
 
-        <button
+        <button title={isDarkMode?"Light Mode":"Dark Mode"}
           aria-label="Toggle Dark Mode"
           onClick={toggleDark}
           className="p-1 px-2 rounded-xs cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-800 transition-colors duration-200"

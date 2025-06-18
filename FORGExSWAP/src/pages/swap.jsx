@@ -20,7 +20,7 @@ function Swap() {
   const isUserInput = useRef(false); //Unlike useState, changing .current does NOT re-render the component.
 
 
-  // ✅ Properly manage state
+  // Properly manage state
   const [valueData, setValueData] = useState({
     buyAddress: "",
     sellAddress: "",
@@ -228,9 +228,9 @@ function Swap() {
           </div>
         </div>
 
-        {/* Swap Icon */}
+       {/* switch button */}
         <div className="flex justify-center">
-          <button onClick={handleSwitch} className="rounded-full p-2 bg-cyan-500 hover:bg-cyan-600 text-white shadow-md">
+          <button title='switch' onClick={handleSwitch} className="rounded-full p-2 bg-cyan-500 hover:bg-cyan-600 text-white shadow-md">
             ⇅
           </button>
         </div>
