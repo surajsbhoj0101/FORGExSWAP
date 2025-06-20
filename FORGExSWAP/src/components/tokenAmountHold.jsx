@@ -8,7 +8,7 @@ import { zeroAddress } from 'viem';
 function TokenAmountHold({ tokenAddress }) {
   if(tokenAddress ==='') tokenAddress = zeroAddress
   const [balance, setBalance] = useState('0'); 
-  const provider = new JsonRpcProvider("https://testnet-rpc.monad.xyz");
+  const provider = new JsonRpcProvider(import.meta.env.VITE_API_URL || "https://sepolia.infura.io/v3/c2e1c563b7f64ab78b463601b03a9bdc"); // Use your own Infura or Alchemy URL
   const { isConnected, address } = useAccount();
 
   useEffect(() => {

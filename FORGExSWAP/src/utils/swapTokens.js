@@ -3,7 +3,7 @@ import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.j
 import IERC20 from "@openzeppelin/contracts/build/contracts/ERC20.json";
 import { FetchSwapData, checkSwapPairExists } from "./swapDataFetch";
 
-const routerAddress = '0xfb8e1c3b833f9e67a71c859a132cf783b645e436';
+const routerAddress = '0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3';
 
 export async function swapTokens({
     amountIn,

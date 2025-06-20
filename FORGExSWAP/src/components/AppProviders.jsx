@@ -18,7 +18,7 @@ const projectId = import.meta.env.PROJECT_ID;
 const config = getDefaultConfig({
   appName: "FORGExSWAP",
   projectId: "449de68e4da511968a82e62574362351",//WalletConnect Cloud project ID
-  chains: [ monadTestnet],
+  chains: [ sepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 
