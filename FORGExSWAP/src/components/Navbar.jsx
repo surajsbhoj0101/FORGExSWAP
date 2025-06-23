@@ -39,7 +39,7 @@ function Navbar() {
             Swap Tokens
           </Link>
           <Link
-            to="#"
+            to="/createToken"
             className="hover:text-blue-500 transition-colors duration-300"
           >
             Create Token

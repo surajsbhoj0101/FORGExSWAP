@@ -181,7 +181,7 @@ function Swap() {
     checkPairAndFetch();
   }, [valueData, lastChanged,]);
 
-  // ✅ Load token list once
+  
   useEffect(() => {
     setAddresses(addressFeed);
   }, []);

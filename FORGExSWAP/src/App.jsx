@@ -4,10 +4,11 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import { FaArrowCircleRight } from "react-icons/fa";
 import { FaLaptopCode } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import dashSvg from "./assets/dashboard-graph-analytics-report-svgrepo-com.svg";
 
 function App() {
-  const [count, setCount] = useState(0);
+  
 
   return (
     <>
@@ -22,10 +23,10 @@ function App() {
             </p>
           </div>
 
-          <button className="flex hover:cursor-pointer items-center gap-3 px-6 py-3 rounded-xl bg-white text-gray-800 hover:bg-cyan-300 hover:text-white hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold text-lg sm:text-xl dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-violet-500">
-            <p>Forge Now</p>
+          <Link to="/createToken" className="flex hover:cursor-pointer items-center gap-3 px-6 py-3 rounded-xl bg-white text-gray-800 hover:bg-cyan-300 hover:text-white hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold text-lg sm:text-xl dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-violet-500">
+            <p to="/createToken">Forge Now</p>
             <FaArrowCircleRight className="text-2xl" />
-          </button>
+          </Link>
         </div>
         {/* why */}
         <div className="why bg-gray-50 dark:bg-gray-900   rounded-md   p-8 items-center flex flex-col">

@@ -1,5 +1,16 @@
 export const addressFeed = [
     {
+        tokenName: "DAI",
+        tokenAddress : "0xE76FbC3C71499e0C522F21ad1520825BB7Be6714"
+        
+    },{
+        tokenName: "GUSD",
+        tokenAddress : "0xB081F0D0f1eb825D0A42134ef1121dAF5321D917"
+    },{
+        tokenName: "BAT",
+        tokenAddress: "0x5D684d37922dAf7Aa2013E65A22880a11C475e25"
+    },
+    {
         tokenName: "USDC",
         tokenAddress: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
     },

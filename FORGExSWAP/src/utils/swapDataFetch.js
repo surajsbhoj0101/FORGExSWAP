@@ -5,7 +5,7 @@ import IERC20 from "@openzeppelin/contracts/build/contracts/ERC20.json";
 
 
 const provider = new JsonRpcProvider(import.meta.env.VITE_API_URL || "https://sepolia.infura.io/v3/c2e1c563b7f64ab78b463601b03a9bdc"); 
-console.log(import.meta.env.VITE_API_URL || "https://sepolia.infura.io/v3/c2e1c563b7f64ab78b463601b03a9bdc")
+// console.log(import.meta.env.VITE_API_URL || "https://sepolia.infura.io/v3/c2e1c563b7f64ab78b463601b03a9bdc")
 const factoryAddress = "0xF62c03E08ada871A0bEb309762E260a7a6a880E6"; //A Factory Contract is a smart contract whose main job is to deploy other contracts.
 const factory = new Contract(factoryAddress, IUniswapV2Factory.abi, provider); 
 
@@ -71,6 +71,7 @@ export async function checkSwapPairExists(tokenA,tokenB) {
       pairAddress:null
     }
   }else{
+    console.log("Pair Address :",pairAddress);
     return {
       exists:true,
       pairAddress:pairAddress
