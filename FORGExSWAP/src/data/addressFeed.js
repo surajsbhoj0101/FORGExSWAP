@@ -1,14 +1,14 @@
 export const addressFeed = [
     {
+        tokenName: "ETH",
+        tokenAddress: "0x0000000000000000000000000000000000000000"
+    },
+    {
         tokenName: "DAI",
-        tokenAddress : "0xE76FbC3C71499e0C522F21ad1520825BB7Be6714"
-        
+        tokenAddress : "0xE76FbC3C71499e0C522F21ad1520825BB7Be6714",
     },{
         tokenName: "GUSD",
         tokenAddress : "0xB081F0D0f1eb825D0A42134ef1121dAF5321D917"
-    },{
-        tokenName: "BAT",
-        tokenAddress: "0x5D684d37922dAf7Aa2013E65A22880a11C475e25"
     },
     {
         tokenName: "USDC",
@@ -19,16 +19,8 @@ export const addressFeed = [
         tokenAddress: "0x4D68da063577F98C55166c7AF6955cF58a97b20A"
     },
     {
-        tokenName: "TRB",
-        tokenAddress: "0x80fc34a2f9FfE86F41580F47368289C402DEc660"
-    },
-    {
-        tokenName: "BLL",
-        tokenAddress: "0x5B9fEDd37f0B92E7E282B19cEbCF06F57B77C6040"
-    },
-    {
         tokenName: "WETH",
-        tokenAddress: "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9"
+        tokenAddress: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14"
     },
     {
         tokenName: "POL",

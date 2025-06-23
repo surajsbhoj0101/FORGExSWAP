@@ -12,13 +12,12 @@ export async function swapTokens({
     signer
 }) {
     if (!signer) throw new Error("No signer provided");
-    console.log("came")
     const router = new Contract(routerAddress, IUniswapV2Router02.abi, signer);
     console.log("Signer address:", await signer.getAddress());
 
     const tokenIn = new Contract(tokenInAddress, IERC20.abi, signer);
 
-    console.log("came2")
+    
     const check = await checkSwapPairExists(tokenInAddress, tokenOutAddress);
     if (!check.exists) {
         throw new error("Pair doesn't exists")
@@ -44,8 +43,13 @@ export async function swapTokens({
     );
     await swapTx.wait();
 
-    return {
-        isTxSuccessful: !!swapTx.hash
-    };
+    return  {
+      isTxSuccessful: !!swapTx.hash,
+      amountOut: amountData.amountOutRaw
+    }
+  
+
+
+    
 
 }

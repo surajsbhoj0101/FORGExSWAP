@@ -4,14 +4,14 @@ import IUniswapV2Pair from "@uniswap/v2-core/build/IUniswapV2Pair.json";
 import IERC20 from "@openzeppelin/contracts/build/contracts/ERC20.json";
 
 
-const provider = new JsonRpcProvider(import.meta.env.VITE_API_URL || "https://sepolia.infura.io/v3/c2e1c563b7f64ab78b463601b03a9bdc"); 
+const provider = new JsonRpcProvider(import.meta.env.VITE_API_URL || "https://sepolia.infura.io/v3/c2e1c563b7f64ab78b463601b03a9bdc");
 // console.log(import.meta.env.VITE_API_URL || "https://sepolia.infura.io/v3/c2e1c563b7f64ab78b463601b03a9bdc")
 const factoryAddress = "0xF62c03E08ada871A0bEb309762E260a7a6a880E6"; //A Factory Contract is a smart contract whose main job is to deploy other contracts.
-const factory = new Contract(factoryAddress, IUniswapV2Factory.abi, provider); 
+const factory = new Contract(factoryAddress, IUniswapV2Factory.abi, provider);
 
-export async function FetchSwapData(tokenA, amountInRaw,pairAddress) {
-  
- 
+export async function FetchSwapData(tokenA, amountInRaw, pairAddress) {
+
+
   const pair = new Contract(pairAddress, IUniswapV2Pair.abi, provider);
   const token0 = await pair.token0();
   const token1 = await pair.token1();
@@ -48,36 +48,53 @@ export async function FetchSwapData(tokenA, amountInRaw,pairAddress) {
   const numerator = amountInWithFee * reserveOut;
   const denominator = reserveIn * 1000n + amountInWithFee;
   const amountOut = numerator / denominator;
-  
+
 
   return {
-    
+
     amountOut: formatUnits(amountOut, outDecimals),
-    inDecimal:inDecimals ,
-    amountOutRaw:amountOut  // BigInt
+    inDecimal: inDecimals,
+    amountOutRaw: amountOut  // BigInt
   };
 }
 
 
-export async function checkSwapPairExists(tokenA,tokenB) {
+export async function checkSwapPairExists(tokenA, tokenB) {
+  const wethAddr = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14";
   if (!tokenA || !tokenB) {
     throw new Error("Both tokenA and tokenB must be provided");
   }
 
-  const pairAddress = await factory.getPair(tokenA, tokenB);
-  if (!pairAddress || pairAddress === ZeroAddress) {
+  if ((tokenA === ZeroAddress && tokenB === wethAddr) || (tokenB === ZeroAddress && tokenA === wethAddr)) {
     return {
-      exists:false,
-      pairAddress:null
-    }
-  }else{
-    console.log("Pair Address :",pairAddress);
-    return {
-      exists:true,
-      pairAddress:pairAddress
+      exists: true,
+      pairAddress: wethAddr
     }
   }
 
+  let token0 = tokenA;
+  let token1 = tokenB;
 
+  if (tokenA === ZeroAddress) {
+    token0 = wethAddr
+  }
+  if (tokenB === ZeroAddress) {
+    token1 = wethAddr
+  }
+
+  const pairAddress = await factory.getPair(token0, token1);
+  if (!pairAddress || pairAddress === ZeroAddress) {
+    return {
+      exists: false,
+      pairAddress: null
+    }
+  } else {
+    console.log("Pair Address :", pairAddress);
+    return {
+      exists: true,
+      pairAddress: pairAddress
+    }
+  }
+  
 }
 

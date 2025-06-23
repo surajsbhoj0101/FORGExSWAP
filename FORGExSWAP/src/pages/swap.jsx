@@ -3,7 +3,7 @@ import { addressFeed } from '../data/addressFeed'
 import { FetchSwapData, checkSwapPairExists } from '../utils/swapDataFetch'
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useWalletClient } from 'wagmi';
-import { BrowserProvider } from 'ethers';
+import { BrowserProvider, ZeroAddress } from 'ethers';
 import TokenAmountHold from '../components/tokenAmountHold';
 import { swapTokens } from '../utils/swapTokens';
 import ToastContainer from '../components/toastContainer';
@@ -11,12 +11,14 @@ import { toast } from "react-toastify";
 import imageDark from '../assets/images/ChatGPT Image Jun 17, 2025, 01_16_02 PM.png'
 import imageLight from '../assets/images/ChatGPT Image Jun 17, 2025, 01_16_10 PM.png'
 import { useTheme } from "../contexts/ThemeContext";
+import { swapNativeTokens } from '../utils/swapNativeToken';
 
 
 function Swap() {
   const { isDarkMode, toggleDark } = useTheme();
   const { data: walletClient } = useWalletClient();
   const { isConnected, address } = useAccount();
+
   const isUserInput = useRef(false); //Unlike useState, changing .current does NOT re-render the component.
 
 
@@ -72,7 +74,7 @@ function Swap() {
 
     setValueData(prev => ({
       ...prev,
-     
+
       sell: buyTemp,
       sellAddress: buyAddTemp,
       buyAddress: sellAddTemp
@@ -96,22 +98,46 @@ function Swap() {
       setIsSwapping(true)
       const provider = new BrowserProvider(walletClient);
       const signer = await provider.getSigner();
+      if (valueData.sellAddress === ZeroAddress || valueData.buyAddress === ZeroAddress) {
+        try {
+          const result = await swapNativeTokens({
+            amountIn: valueData.sell,
+            tokenInAddress: valueData.sellAddress,
+            tokenOutAddress: valueData.buyAddress,
+            signer: signer,
+          })
 
-      const result = await swapTokens({
-        amountIn: valueData.sell,
-        tokenInAddress: valueData.sellAddress,
-        tokenOutAddress: valueData.buyAddress,
-        signer: signer,
-      });
+          if (result.isTxSuccessful) {
+            toast.success(" Swap successful!");
 
-      if (result.isTxSuccessful) {
-        toast.success(" Swap successful!");
+          } else {
+            toast.error("Swap failed!");
+          }
 
+        } catch (err) {
+          toast.error("Swap failed:", err);
+        }
       } else {
-        toast.error("Swap failed!");
+        try {
+          const result = await swapTokens({
+            amountIn: valueData.sell,
+            tokenInAddress: valueData.sellAddress,
+            tokenOutAddress: valueData.buyAddress,
+            signer: signer,
+          });
+
+          if (result.isTxSuccessful) {
+            toast.success(" Swap successful!");
+
+          } else {
+            toast.error("Swap failed!");
+          }
+        } catch (err) {
+          toast.error("Swap failed:", err);
+        }
       }
-    } catch (err) {
-      toast.error("Swap failed:", err);
+    }catch(err){
+      console.log(err)
     } finally {
       setIsSwapping(false);
       setValueData(prev => ({
@@ -128,6 +154,7 @@ function Swap() {
   useEffect(() => {
     const checkPairAndFetch = async () => {
       if (valueData.buyAddress && valueData.sellAddress && isUserInput.current) {
+
         const result = await checkSwapPairExists(valueData.sellAddress, valueData.buyAddress);
         if (result.exists) {
           setIsPairExists(true);
@@ -146,42 +173,59 @@ function Swap() {
     };
 
     const fetchPriceAndUpdate = async (pairAddress) => {
-      try {
-        setFetchingQuotes(true);
-        if (lastChanged === "sell") {
-          const data = await FetchSwapData(
-            valueData.sellAddress,
-            valueData.sell,
-            pairAddress
-          );
-          setValueData(prev => ({
-            ...prev,
-            buy: data.amountOut
-          }));
-        } else if (lastChanged === "buy") {
-          const data = await FetchSwapData(
-            valueData.buyAddress,
-            valueData.buy,
-            pairAddress
-          );
-          setValueData(prev => ({
-            ...prev,
-            sell: data.amountOut
-          }));
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
+      const wethAddr = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14";
+      if (pairAddress !== wethAddr) {
+        try {
+          setFetchingQuotes(true);
+          if (lastChanged === "sell") {
+            const data = await FetchSwapData(
+              valueData.sellAddress,
+              valueData.sell,
+              pairAddress
+            );
+            setValueData(prev => ({
+              ...prev,
+              buy: data.amountOut
+            }));
+          } else if (lastChanged === "buy") {
+            const data = await FetchSwapData(
+              valueData.buyAddress,
+              valueData.buy,
+              pairAddress
+            );
+            setValueData(prev => ({
+              ...prev,
+              sell: data.amountOut
+            }));
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
 
-        setFetchingQuotes(false);
+          setFetchingQuotes(false);
+          isUserInput.current = false;
+        }
+      } else {
+
+        if (lastChanged === 'sell') {
+          setValueData((prev) => ({
+            ...prev,
+            buy: prev.sell
+          }))
+        } else if (lastChanged === 'buy') {
+          setValueData((prev) => ({
+            ...prev,
+            sell: prev.buy
+          }))
+        }
         isUserInput.current = false;
       }
     };
 
     checkPairAndFetch();
-  }, [valueData, lastChanged,]);
+  }, [valueData, lastChanged]);
 
-  
+
   useEffect(() => {
     setAddresses(addressFeed);
   }, []);
@@ -189,7 +233,7 @@ function Swap() {
 
 
   return (
-    <div style={{ backgroundImage: `${isDarkMode?(`url(${imageDark})`):(`url(${imageLight})`)}` }} className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed  relative bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center px-4">
+    <div style={{ backgroundImage: `${isDarkMode ? (`url(${imageDark})`) : (`url(${imageLight})`)}` }} className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed  relative bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 space-y-2 sm:space-y-6">
         <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">
           Swap Here
@@ -212,7 +256,7 @@ function Swap() {
               name='sell'
               type="number"
               placeholder="0.0"
-              className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-3 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="flex-1 border sm:w-full w-24 border-gray-300 dark:border-gray-600 rounded-lg px-2 py-3 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
             <select
               value={valueData.sellAddress}
@@ -228,7 +272,7 @@ function Swap() {
           </div>
         </div>
 
-       {/* switch button */}
+        {/* switch button */}
         <div className="flex justify-center">
           <button title='switch' onClick={handleSwitch} className="rounded-full p-2 bg-cyan-500 hover:bg-cyan-600 text-white shadow-md">
             ⇅
@@ -247,7 +291,7 @@ function Swap() {
               type="number"
               name='buy'
               placeholder="0.0"
-              className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-3 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="flex-1 border sm:w-full w-24 border-gray-300 dark:border-gray-600 rounded-lg px-2 py-3 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
             <select
               value={valueData.buyAddress}
