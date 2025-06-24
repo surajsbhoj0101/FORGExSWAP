@@ -1,0 +1,83 @@
+[33mcommit 96c34b60dea67e9e39faa3e33afd1c6069c8740c[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: surajsbhoj0101 <surajsbhoj0101@gmail.com>
+Date:   Mon Jun 23 17:52:14 2025 +0530
+
+    Added the native token swap functionality
+
+[33mcommit f8cf07861ae32053dd7c12894e34d1d9a207abf1[m
+Author: surajsbhoj0101 <surajsbhoj0101@gmail.com>
+Date:   Mon Jun 23 10:28:41 2025 +0530
+
+    Added Trade page for tredning tokens
+
+[33mcommit c0ba776d69c4157188e67b8cd74d4f5b8c2da777[m
+Author: surajsbhoj0101 <surajsbhoj0101@gmail.com>
+Date:   Fri Jun 20 15:00:34 2025 +0530
+
+    Added sepolia removed monad-testnet
+
+[33mcommit e05792e54ec378b998c3b6286b105a7315b018ba[m
+Author: surajsbhoj0101 <surajsbhoj0101@gmail.com>
+Date:   Wed Jun 18 13:22:08 2025 +0530
+
+    Trade page UI
+
+[33mcommit 7a4d822ae683a60bd5bdb866fac252888d5d3c77[m
+Author: surajsbhoj0101 <surajsbhoj0101@gmail.com>
+Date:   Wed Jun 18 10:13:31 2025 +0530
+
+    Fixed swap button bug
+
+[33mcommit edf7f8069de4503825b5829b5c816991f9c80bf1[m
+Author: surajsbhoj0101 <surajsbhoj0101@gmail.com>
+Date:   Tue Jun 17 13:22:36 2025 +0530
+
+    Added background image
+
+[33mcommit 5e513921dc5cc86df6795b5d33134efc90bd518d[m
+Author: surajsbhoj0101 <surajsbhoj0101@gmail.com>
+Date:   Tue Jun 17 12:27:49 2025 +0530
+
+    Completed functionality of the swap Fully , by adding block button
+
+[33mcommit 83a3290f75618dc76d1d2c1ccfc38642c4cd0cec[m
+Author: surajsbhoj0101 <surajsbhoj0101@gmail.com>
+Date:   Tue Jun 17 11:49:31 2025 +0530
+
+    Swapping functionality added Improved , price fetch functionality
+
+[33mcommit e19a0a87af17dd0973028eb9d2fc18914dcc51ec[m
+Author: surajsbhoj0101 <surajsbhoj0101@gmail.com>
+Date:   Mon Jun 16 16:17:13 2025 +0530
+
+    Actual amount a user will get , added get amountsOut functionality
+
+[33mcommit 1d86622e5ee920c3c1fb2cdf955e5eb1f5995a9c[m
+Author: surajsbhoj0101 <surajsbhoj0101@gmail.com>
+Date:   Sun Jun 15 18:37:47 2025 +0530
+
+    Swap Data fetch utility
+
+[33mcommit 3452e90b82b3525b686383d4cd63db41863b1072[m
+Author: surajsbhoj0101 <surajsbhoj@gmail.com>
+Date:   Wed Jun 4 19:15:50 2025 +0530
+
+    Dashboard
+
+[33mcommit b2348ac3b7c723c7512f6443fec682bf54cd700e[m
+Author: surajsbhoj0101 <surajsbhoj@gmail.com>
+Date:   Tue Jun 3 21:07:13 2025 +0530
+
+    USed wagmi & rainbowKit
+
+[33mcommit 1635c924e869b3ce7c1af0c4ba0bc43e75bf6dd3[m
+Author: surajsbhoj0101 <surajsbhoj@gmail.com>
+Date:   Mon Jun 2 21:28:47 2025 +0530
+
+    Added Context Theme, navbar,...
+
+[33mcommit 0642e298d580f3415813a5a18628123632bf5887[m
+Author: surajsbhoj0101 <surajsbhoj@gmail.com>
+Date:   Mon Jun 2 14:36:01 2025 +0530
+
+    Initial commit

@@ -256,6 +256,7 @@ function Swap() {
               name='sell'
               type="number"
               placeholder="0.0"
+              min="0"
               className="flex-1 border sm:w-full w-24 border-gray-300 dark:border-gray-600 rounded-lg px-2 py-3 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
             <select
