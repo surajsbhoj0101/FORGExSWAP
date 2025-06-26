@@ -1,5 +1,9 @@
 export const addressFeed = [
     {
+        tokenName:"FSWAP",
+        tokenAddress: "0xbBED32171f410aeF7CE2c77a2231A6e6e48FbB34"
+    },
+    {
         tokenName: "ETH",
         tokenAddress: "0x0000000000000000000000000000000000000000"
     },
@@ -34,4 +38,5 @@ export const addressFeed = [
         tokenName: "LINK",
         tokenAddress: "0x779877A7B0D9E8603169DdbD7836e478b4624789"
     }
+    
 ]

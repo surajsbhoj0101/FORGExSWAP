@@ -250,6 +250,7 @@ function Swap() {
           </div>
           <div className="flex items-center gap-3">
             <input
+              required
               onChange={handleSellChange}
               value={valueData.sell}
 
@@ -287,6 +288,7 @@ function Swap() {
           </label>
           <div className="flex items-center gap-3">
             <input
+              required
               onChange={handleBuyChange}
               value={valueData.buy}
               type="number"

@@ -41,7 +41,7 @@ export async function swapNativeTokens({
 
     // Native ETH -> Other ERC20 
     if (tokenInAddress === ZeroAddress) {
-        const tx = await weth.deposit({ value: parseEther(amountIn) });
+        const tx = await weth.deposit({ value: parseEther(amountIn) }); //{} seding (wei or ether) or struct
         await tx.wait();
         return await swapTokens({ amountIn, tokenInAddress: wethAddr, tokenOutAddress, signer });
     }

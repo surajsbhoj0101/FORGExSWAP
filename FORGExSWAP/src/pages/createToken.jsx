@@ -1,10 +1,17 @@
 import React, { useState } from 'react'
-import { useTheme } from "../contexts/ThemeContext";
-import Img from '../assets/images/createToken.png'
-
+import { handleTokenCreation } from '../utils/handleTokenCreation';
+import { useAccount, useWalletClient } from 'wagmi';
+import { addLiquidity } from '../utils/addLiquidity';
+import { BrowserProvider, ZeroAddress } from 'ethers';
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import ToastContainer from '../components/toastContainer';
+import { toast } from 'react-toastify';
 
 
 function createToken() {
+    const [isCreatingToken, setIsCreatingToken] = useState(false)
+    const { data: walletClient } = useWalletClient();
+    const { isConnected, address } = useAccount();
     const [tokenData, setTokenData] = useState({
         tokenName: "",
         tokenSymbol: "",
@@ -31,11 +38,53 @@ function createToken() {
         }
     }
 
+    async function hanldeTokenCreation(e) {
+        e.preventDefault(); //prevent Form submission from reloading page
+        if (!tokenData.tokenName || !tokenData.tokenSupply || !tokenData.tokenSymbol || !tokenData.initialLiquidity || !tokenData.image) {
+            console.log("all field mandatory");
+            return;
+        }
+        try {
+            setIsCreatingToken(true)
+            const provider = new BrowserProvider(walletClient);
+            const signer = await provider.getSigner();
+            const customToken = await handleTokenCreation(tokenData.tokenName, tokenData.tokenSymbol, tokenData.tokenSupply, signer);
+            if (!customToken.isTxSuccessful) {
+                toast.error("Token Creation failed")
+                return
+            }
+            toast.success("Token Creation Successfull, Now wait for to add liquidity")
+            const liqAdd = await addLiquidity(customToken.address, tokenData.tokenSupply, tokenData.initialLiquidity, signer, address)
+            if (!liqAdd.isTxSuccessful) {
+                toast.error("Liquidity addition failed");
+                return;
+            }
+
+            toast.success("Liquidty addition successfull, Now wait while we add your data")
+
+            
+
+        } catch (error) {
+            console.log("Failed to create token", error)
+        } finally {
+            setTokenData(prev => ({
+                ...prev,
+                tokenName: "",
+                tokenSymbol: "",
+                tokenSupply: "",
+                initialLiquidity: "",
+                image: ""
+            }))
+            setIsCreatingToken(false);
+        }
+    }
+
 
 
     return (
         <div className="flex flex-col min-h-screen">
             {/* Hero Section */}
+            <ToastContainer />
             <div className="dark:bg-gray-800 shadow-lg bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 text-white text-center px-4 py-16 flex flex-col justify-center items-center space-y-4">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
                     Test, build, and grow
@@ -53,10 +102,11 @@ function createToken() {
                 <div className="w-full max-w-md bg-white dark:bg-gray-900 shadow-xl rounded-lg p-6 space-y-6">
                     <h1 className="text-3xl font-bold text-center mb-4">Create Your Token</h1>
 
-                    <form className="flex flex-col gap-4">
+                    <form className="flex flex-col gap-4" onSubmit={hanldeTokenCreation}>
                         <div>
                             <label htmlFor="tokenName" className="block mb-1 font-medium">Token Name</label>
                             <input
+                                required
                                 onChange={handleTokenData}
                                 value={tokenData.tokenName}
                                 type="text"
@@ -70,6 +120,7 @@ function createToken() {
                         <div>
                             <label htmlFor="tokenSymbol" className="block mb-1 font-medium">Token Symbol</label>
                             <input
+                                required
                                 onChange={handleTokenData}
                                 type="text"
                                 value={tokenData.tokenSymbol}
@@ -83,6 +134,7 @@ function createToken() {
                         <div>
                             <label htmlFor="tokenSupply" className="block mb-1 font-medium">Token Supply</label>
                             <input
+                                required
                                 onChange={handleTokenData}
                                 min='1'
                                 value={tokenData.tokenSupply}
@@ -97,8 +149,9 @@ function createToken() {
                         <div>
                             <label htmlFor="tokenLiquidity" className="block mb-1 font-medium">Enter Eth to add initial liquidity min 0.01 </label>
                             <input
+                                required
                                 onChange={handleTokenData}
-                                min="0.01"
+                                min="10"
                                 value={tokenData.initialLiquidity}
                                 type="number"
                                 name="initialLiquidity"
@@ -117,6 +170,7 @@ function createToken() {
                                 <img src={tokenData.image} className="w-1/3 border-dashed h-30 rounded-full overflow-hidden  px-3 py-2" alt="preview" />
 
                             ) : (<input
+                                required
                                 type="file"
                                 accept="image/*"
                                 name="image"
@@ -125,12 +179,16 @@ function createToken() {
                             />)}
                         </div>
 
-                        <button
-                            type="submit"
-                            className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white py-3 rounded font-semibold transition"
-                        >
-                            Create Token
-                        </button>
+                        <div className='flex justify-center items-center'>
+                            {isConnected ? (<button
+                                type="submit"
+                                disabled={isCreatingToken}
+                                className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white py-3 rounded font-semibold transition"
+                            >
+                                {isCreatingToken ? "please wait ..." : "Create Token"}
+                            </button>) : (<ConnectButton />)}
+                        </div>
+
                     </form>
                 </div>
             </div>
