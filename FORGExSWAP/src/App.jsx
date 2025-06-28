@@ -8,8 +8,6 @@ import { Link } from "react-router-dom";
 import dashSvg from "./assets/dashboard-graph-analytics-report-svgrepo-com.svg";
 
 function App() {
-  
-
   return (
     <>
       <div className="bg-gray-200  mb-2 dark:bg-gray-800 h-full w-full">

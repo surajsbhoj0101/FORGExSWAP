@@ -7,7 +7,7 @@ const provider = new JsonRpcProvider(process.env.VITE_API_URL);
 const signer = new Wallet(process.env.PRIVATE_KEY, provider);
 
 const routerAddress = "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3";
-const FSWAP = "0xbBED32171f410aeF7CE2c77a2231A6e6e48FbB34";
+const FSWAP = "0x81D1eb8037C47E329900A3bf8a78814bc259c770";
 const WETH = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14";
 const toAddress = "0x6888bda3F6E78c58F4d669939FB6dc9C87E714D7";
 
@@ -16,10 +16,12 @@ async function addLiquidity() {
     const WethContract = new Contract(WETH, IERC20.abi, signer);
 
     const FSWAP_Value = parseUnits("10000", 18);
-    const WETH_Value = parseUnits("0.45", 18);
+    const WETH_Value = parseUnits("0.44", 18);
 
-    await FswapContract.approve(routerAddress, FSWAP_Value);
-    await WethContract.approve(routerAddress, WETH_Value);
+    const ap0 = await FswapContract.approve(routerAddress, FSWAP_Value);
+    await ap0.wait()
+    const ap1 = await WethContract.approve(routerAddress, WETH_Value);
+    await ap0.wait()
 
     const minFswap = parseUnits("9800", 18); // 2% slippage
     const minWeth = parseUnits("0.42", 18);  // 2% slippage
@@ -44,5 +46,10 @@ async function addLiquidity() {
 }
 
 (async () => {
-    await addLiquidity();
+    try {
+        await addLiquidity();
+    } catch (error) {
+        console.error(error)
+    }
+
 })();

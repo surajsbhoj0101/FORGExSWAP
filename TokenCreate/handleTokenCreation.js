@@ -6,7 +6,7 @@ dotenv.config();
 
 const provider = new JsonRpcProvider(process.env.VITE_API_URL);
 const signer = new Wallet(process.env.PRIVATE_KEY, provider);
-const factoryAddress = "0x30F785604703a98888942104Db0f5a5DD745200D";
+const factoryAddress = "0xde65a90F47e0bD23D025dB2E4b8dc68c0727997C";
 
 async function handleTokenCreation(tokenName, tokenSymbol, tokenSupply) {
     const factoryContract = new Contract(factoryAddress, tokenFactory_abi, signer);
@@ -63,7 +63,7 @@ async function handleTokenCreation(tokenName, tokenSymbol, tokenSupply) {
         owner: tokenCreatedEvent.args.owner
     };
 }
-//0xbBED32171f410aeF7CE2c77a2231A6e6e48FbB34
+
 //  Immediately Invoked Async Function 
 (async () => {
     try {

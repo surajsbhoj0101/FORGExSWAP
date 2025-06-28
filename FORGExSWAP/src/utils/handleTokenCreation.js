@@ -1,7 +1,7 @@
 import { Contract, parseUnits, Interface } from "ethers";
 import { tokenFactory_abi } from "../data/TokenFactory_abi";
 
-const factoryAddress = "0x30F785604703a98888942104Db0f5a5DD745200D";
+const factoryAddress = "0xde65a90F47e0bD23D025dB2E4b8dc68c0727997C";
 
 export async function handleTokenCreation(tokenName, tokenSymbol, tokenSupply, signer) {
     const factoryContract = new Contract(factoryAddress, tokenFactory_abi, signer);

@@ -1,10 +1,11 @@
-import { Contract, parseUnits } from "ethers";
+import { Contract, parseUnits, Interface } from "ethers";
 import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 import IERC20 from "@openzeppelin/contracts/build/contracts/ERC20.json";
+import IUniswapV2Factory from "@uniswap/v2-core/build/IUniswapV2Factory.json";
 
 
 const routerAddress = "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3";
-const fswapAddress = "0xbBED32171f410aeF7CE2c77a2231A6e6e48FbB34";
+const fswapAddress = "0x81D1eb8037C47E329900A3bf8a78814bc259c770";
 
 export async function addLiquidity(customTokenAddress, customTokenAmount, fswapAmount, signer, toAddress) {
     const customTokenContract = new Contract(customTokenAddress, IERC20.abi, signer);
@@ -19,12 +20,21 @@ export async function addLiquidity(customTokenAddress, customTokenAmount, fswapA
     const minCustomToken = customTokenValue * 98n / 100n;
     const minFswapToken = fswapTokenValue * 98n / 100n;
 
+    const customAllowance = await customTokenContract.allowance(await signer.getAddress(), routerAddress);
+    if (customAllowance < customTokenValue) {
+        const customTokenApproveTx =  await customTokenContract.approve(routerAddress, customTokenValue);
+        await customTokenApproveTx.wait()
+        console.log("custom token approved");
+    }
 
-    await customTokenContract.approve(routerAddress, customTokenValue);
-    console.log("custom token approved");
+    const fswapAllowance = await fswapContract.allowance(await signer.getAddress(), routerAddress);
+    if (fswapAllowance < fswapTokenValue) {
+        const fswapTokenApproveTx =  await fswapContract.approve(routerAddress, fswapTokenValue);
+        await fswapTokenApproveTx.wait();
+        console.log("fswap token approved");
+    }
 
-    await fswapContract.approve(routerAddress, fswapTokenValue);
-    console.log("fswap token approved");
+
 
     const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
 
@@ -41,7 +51,27 @@ export async function addLiquidity(customTokenAddress, customTokenAmount, fswapA
         toAddress,
         deadline
     );
-    await tx.wait();
+    const receipt = await tx.wait();
 
-    return { isTxSuccessful: !!tx.hash };
+    const iface = new Interface(IUniswapV2Factory.abi);
+
+    let tokenCreatedEvent = null;
+
+    for (const log of receipt.logs) {
+        try {
+            const parsed = iface.parseLog(log); //Tries to decode the log using the ABI
+            if (parsed.name === "PairCreated") {
+                tokenCreatedEvent = parsed;
+                break;
+            }
+        } catch (err) {
+            continue;
+        }
+    }
+
+
+    return {
+        isTxSuccessful: !!tx.hash,
+        pairAddress: tokenCreatedEvent.args.pair
+    };
 }

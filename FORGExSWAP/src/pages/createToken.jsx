@@ -6,17 +6,21 @@ import { BrowserProvider, ZeroAddress } from 'ethers';
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import ToastContainer from '../components/toastContainer';
 import { toast } from 'react-toastify';
+import axios from 'axios';
+import { FilePen } from 'lucide-react';
 
 
 function createToken() {
+    const fswapAddress = "0x81D1eb8037C47E329900A3bf8a78814bc259c770";
     const [isCreatingToken, setIsCreatingToken] = useState(false)
     const { data: walletClient } = useWalletClient();
     const { isConnected, address } = useAccount();
+    const formData = new FormData();
     const [tokenData, setTokenData] = useState({
         tokenName: "",
         tokenSymbol: "",
         tokenSupply: "",
-        initialLiquidity: "",
+        fswapForInitialLiquidity: "",
         image: ""
     })
 
@@ -25,6 +29,8 @@ function createToken() {
         if (name === 'image' && files && files[0]) {
             const file = files[0];
             const imageURL = URL.createObjectURL(file);
+            console.log("ImageUrl",file)
+            
             setTokenData(prev => ({
                 ...prev,
                 image: imageURL,   // or store file object instead, if you plan to upload
@@ -40,7 +46,7 @@ function createToken() {
 
     async function hanldeTokenCreation(e) {
         e.preventDefault(); //prevent Form submission from reloading page
-        if (!tokenData.tokenName || !tokenData.tokenSupply || !tokenData.tokenSymbol || !tokenData.initialLiquidity || !tokenData.image) {
+        if (!tokenData.tokenName || !tokenData.tokenSupply || !tokenData.tokenSymbol || !tokenData.fswapForInitialLiquidity || !tokenData.image) {
             console.log("all field mandatory");
             return;
         }
@@ -54,15 +60,50 @@ function createToken() {
                 return
             }
             toast.success("Token Creation Successfull, Now wait for to add liquidity")
-            const liqAdd = await addLiquidity(customToken.address, tokenData.tokenSupply, tokenData.initialLiquidity, signer, address)
+            const liqAdd = await addLiquidity(customToken.address, tokenData.tokenSupply, tokenData.fswapForInitialLiquidity, signer, address)
             if (!liqAdd.isTxSuccessful) {
                 toast.error("Liquidity addition failed");
                 return;
             }
 
             toast.success("Liquidty addition successfull, Now wait while we add your data")
-
+            const file = tokenData.imageFile
+            console.log('file-',file);
+            formData.append('image',file)
             
+            const resImage = await axios.post('http://localhost:3002/upload',formData,{
+                headers:{
+                    'Content-Type':'multipart/form-data'
+                }
+            });
+
+            if(!resImage.data.success){
+                toast.warn("Image upload fail, adding a random image")
+            }
+
+            console.log("Working on it")
+
+            const res = await axios.post("http://localhost:3002/tokenData", {
+                "pairName": tokenData.tokenSymbol + "/FSwap",
+                "pairAddress": liqAdd.pairAddress,
+                "customTokenName": tokenData.tokenName,
+                "fswapTokenName": "FORGEXSWAP",
+                "customToken": customToken.address,
+                "fswapAddress": fswapAddress,
+                "customTokenTotalSupply": tokenData.tokenSupply,
+                "fswapTotalSupply": "10000",
+                "customTokenForLiquidity": (tokenData.tokenSupply*9)/10,
+                "customTokenSupplyForLiquidity":tokenData.fswapForInitialLiquidity,
+                "cutomTokenImage": resImage.data.cid || "bafybeigztycdf3f3zc3cugrt7fivb2rmlph7u2blcmjgeiwbw3tu565ptm",
+            })
+
+            if(!res.data.success){
+                toast.error("Token Data could nout be added in the servers ");
+                return
+            }
+
+            toast.success(`Your token creation is successfull ${res.data.data}`)
+
 
         } catch (error) {
             console.log("Failed to create token", error)
@@ -72,7 +113,7 @@ function createToken() {
                 tokenName: "",
                 tokenSymbol: "",
                 tokenSupply: "",
-                initialLiquidity: "",
+                fswapForInitialLiquidity: "",
                 image: ""
             }))
             setIsCreatingToken(false);
@@ -102,7 +143,7 @@ function createToken() {
                 <div className="w-full max-w-md bg-white dark:bg-gray-900 shadow-xl rounded-lg p-6 space-y-6">
                     <h1 className="text-3xl font-bold text-center mb-4">Create Your Token</h1>
 
-                    <form className="flex flex-col gap-4" onSubmit={hanldeTokenCreation}>
+                    <form className="flex flex-col gap-4"  method="post" encType='multipart/form-data' onSubmit={hanldeTokenCreation}>
                         <div>
                             <label htmlFor="tokenName" className="block mb-1 font-medium">Token Name</label>
                             <input
@@ -147,14 +188,14 @@ function createToken() {
                         </div>
 
                         <div>
-                            <label htmlFor="tokenLiquidity" className="block mb-1 font-medium">Enter Eth to add initial liquidity min 0.01 </label>
+                            <label htmlFor="tokenLiquidity" className="block mb-1 font-medium">Enter Fswap to add initial liquidity min 1 </label>
                             <input
                                 required
                                 onChange={handleTokenData}
-                                min="10"
-                                value={tokenData.initialLiquidity}
+                                min="1"
+                                value={tokenData.fswapForInitialLiquidity}
                                 type="number"
-                                name="initialLiquidity"
+                                name="fswapForInitialLiquidity"
                                 id="liquidity"
                                 className="w-full border border-gray-400 rounded px-3 py-2 text-gray-900"
                                 placeholder="0.1"
@@ -185,7 +226,7 @@ function createToken() {
                                 disabled={isCreatingToken}
                                 className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white py-3 rounded font-semibold transition"
                             >
-                                {isCreatingToken ? "please wait ..." : "Create Token"}
+                                {isCreatingToken ? "Creating please wait ..." : "Create Token"}
                             </button>) : (<ConnectButton />)}
                         </div>
 
