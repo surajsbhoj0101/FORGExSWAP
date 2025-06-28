@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { pair } from '../../data/pair.js'
 import { gql, request } from 'graphql-request'
 import { getDecimals } from '../../utils/getDecimals.js'
-import { formatUnits } from 'ethers'
+import { formatUnits, getAddress } from 'ethers'
+import axios from 'axios'
 
 const syncQuery = gql`
   query LatestSync($pair: Bytes!) {
@@ -25,24 +26,40 @@ function TradePriceShow() {
     const [pairAddresses, setPairAddresses] = useState([]);
     const [pairPrices, setPairPrices] = useState([]);
 
-    async function getResult(pairName, address, token0, token1) {
+    function sortTokens(tokenA, tokenB) {
+        const [addressA, addressB] = [tokenA.toLowerCase(), tokenB.toLowerCase()]
+        return addressA < addressB ? [tokenA, tokenB] : [tokenB, tokenA]
+    }
+
+    async function getResult(pairName, address, tokenA, tokenB, customTokenImage, customTokenTotalSupply, fswapTotalSupply) {
         try {
             const result = await request(url, syncQuery, { pair: address }, headers);
             console.log(result)
             const sync = result?.syncs?.[0];
             if (!sync) return null;
-
             const reserve0 = sync.reserve0;
             const reserve1 = sync.reserve1;
+            const [token0, token1] = sortTokens(tokenA, tokenB)
+            let price;
+            if (token0 == tokenA) {
+                price =
+                    Number(formatUnits(reserve1, 18)) /
+                    Number(formatUnits(reserve0, 18));
+            } else {
+                price =
+                    Number(formatUnits(reserve0, 18)) /
+                    Number(formatUnits(reserve1, 18));
+            }
 
-            // Pass token addresses if getDecimals expects them
-            const [decimal0, decimal1] = await getDecimals(token0, token1);
 
-            const price =
-                Number(formatUnits(reserve1, decimal1)) /
-                Number(formatUnits(reserve0, decimal0));
+
+
+
+
 
             return {
+                customTokenImage:`https://gateway.pinata.cloud/ipfs/`+customTokenImage,
+                fswapTokenImage:"https://gateway.pinata.cloud/ipfs/bafkreibraphv6pijf2hp7dckl5ehljekxq7to5pbjlcpw34xnks7vcddgq",
                 name: pairName,
                 price: price
             };
@@ -51,10 +68,19 @@ function TradePriceShow() {
             return null;
         }
     }
-    
+
 
     useEffect(() => {
-        setPairAddresses(pair);
+        async function fetchPairs(params) {
+            try {
+                const res = await axios.get('http://localhost:3002/fetchAllToken');
+                setPairAddresses(res.data)
+            } catch (error) {
+                console.log("An error occured: ", error)
+            }
+
+        }
+        fetchPairs()
     }, []);
 
     useEffect(() => {
@@ -62,8 +88,19 @@ function TradePriceShow() {
             if (!pairAddresses.length) return;
             const results = [];
             for (let i = 0; i < pairAddresses.length; i++) {
-                const { pairName, pairAddress, token0, token1 } = pairAddresses[i];
-                const data = await getResult(pairName, pairAddress, token0, token1);
+
+                const { pairName,
+                    pairAddress,
+                    customTokenName,
+                    fswapTokenName,
+                    customToken,
+                    fswapAddress,
+                    customTokenTotalSupply,
+                    fswapTotalSupply,
+                    customTokenForLiquidity,
+                    customTokenSupplyForLiquidity,
+                    customTokenImage } = pairAddresses[i];
+                const data = await getResult(pairName, pairAddress, customToken, fswapAddress, customTokenImage, customTokenTotalSupply, fswapTotalSupply);
                 if (data) results.push(data);
             }
             setPairPrices(results);
@@ -76,7 +113,6 @@ function TradePriceShow() {
             <div className='rounded-lg flex flex-col space-y-2'>
                 {/* tradingMenu */}
                 <div className='flex items-center dark:bg-gray-800 bg-gray-200 p-4 rounded-tr-lg rounded-tl-lg space-x-3'>
-                    <button className='py-1 hover:cursor-pointer px-2 rounded-md dark:bg-gray-800 dark:text-white bg-gray-200 text-gray-950 text-lg font-sans'>Trending</button>
                     <button className='py-1 hover:cursor-pointer px-2 rounded md bg-gray-300  text-gray-950 text-lg font-sans'>LaunchPad</button>
                 </div>
                 {/* trading-data */}
@@ -98,10 +134,12 @@ function TradePriceShow() {
                                 </tr>
                             ) : (
                                 pairPrices.map((item, idx) => (
-                                    <tr key={item.name}>
+                                    <tr key={item.name} className='hover:cursor-pointer hover:bg-white dark:hover:bg-gray-900'>
                                         <td className="px-8 py-4">{idx + 1}</td>
-                                        <td className="px-8 py-4">{item.name}</td>
-                                        <td className="px-8 py-4">${item.price.toLocaleString(undefined, { maximumFractionDigits: 6 })}</td>
+                                        <td className="px-8 py-4 items-center justify-center space-x-2 flex"><p>{item.name}</p>
+                                            <img src={item.customTokenImage} className='w-15 h-15 rounded-full' alt="customTokenImg" />
+                                        </td>
+                                        <td className="px-8 py-4">{item.price.toLocaleString(undefined, { maximumFractionDigits: 6 })} &nbsp; FSWAP</td>
                                         <td className="px-8 py-4">-</td>
                                         <td className="px-8 py-4">-</td>
                                     </tr>

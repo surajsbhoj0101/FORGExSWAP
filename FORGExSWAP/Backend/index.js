@@ -15,7 +15,7 @@ const app = express();
 const port = 3002;
 app.use(cors());
 
-const storage = multer.diskStorage({
+const storage = multer.diskStorage({ //middleware
   destination: (req, file, cb) => {
     cb(null, 'uploads/'); // Make sure this folder exists
   },
@@ -42,16 +42,16 @@ app.post("/upload", upload.single("image"), async (req, res) => {
       return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
-    const filePath = path.resolve(req.file.path);
+    const filePath = path.resolve(req.file.path);//Converts the relative path (e.g. uploads/1687890-myphoto.png) into an absolute path
 
     // Create a Node.js file-like object for Pinata SDK
-    const fileBuffer = fs.readFileSync(filePath);
-    const file = new File([fileBuffer], req.file.originalname, { type: req.file.mimetype });
+    const fileBuffer = fs.readFileSync(filePath);//fs.readFileSync reads the uploaded image into a buffer
+    const file = new File([fileBuffer], req.file.originalname, { type: req.file.mimetype });//File can hold metaData of the file
 
     // Upload using Pinata v2 SDK
     const result = await pinata.upload.public.file(file);
 
-    // Delete the file locally
+    // Delete the file locally from uploads/ folder
     fs.unlinkSync(filePath);
 
     if (result.cid) {
@@ -89,6 +89,16 @@ app.post("/tokenData", async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
+app.get('/fetchAllToken',async(req,res)=>{
+  try {
+    const allPairs = await tokenData.find();
+    res.json(allPairs)
+  } catch (error) {
+    console.error("error came: ",error)
+    res.status(500).json({error:"Internal error check db"})
+  }
+})
 
 
 app.listen(port, () => {
