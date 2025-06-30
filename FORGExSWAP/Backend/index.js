@@ -90,13 +90,26 @@ app.post("/tokenData", async (req, res) => {
   }
 });
 
-app.get('/fetchAllToken',async(req,res)=>{
+app.get('/fetchPair/:pairAddress', async (req, res) => {
+  try {
+    const { pairAddress } = req.params
+    const pair = await tokenData.findOne({ pairAddress })
+    if (!pair) {
+      return res.status(404).json({ message: "pair not found" })
+    }
+    res.json(pair);
+  } catch (error) {
+    res.status(500).json({ message: 'server error', error: error.message })
+  }
+})
+
+app.get('/fetchAllToken', async (req, res) => {
   try {
     const allPairs = await tokenData.find();
     res.json(allPairs)
   } catch (error) {
-    console.error("error came: ",error)
-    res.status(500).json({error:"Internal error check db"})
+    console.error("error came: ", error)
+    res.status(500).json({ error: "Internal error check db" })
   }
 })
 

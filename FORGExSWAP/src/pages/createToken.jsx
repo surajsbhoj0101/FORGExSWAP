@@ -33,7 +33,6 @@ function createToken() {
         fswapForInitialLiquidity: "",
         image: ""
     })
-
     function handleTokenData(e) {
         const { name, value, files } = e.target
         if (name === 'image' && files && files[0]) {

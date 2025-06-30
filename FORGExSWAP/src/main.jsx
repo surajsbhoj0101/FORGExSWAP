@@ -11,6 +11,7 @@ import TradePriceShow from "./pages/trade/tradePriceShow.jsx";
 import Swap from "./pages/swap.jsx";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import CreateToken from "./pages/createToken.jsx";
+import TradePage from "./pages/trade/tradePair/tradePage.jsx";
 
 // Create the client
 const queryClient = new QueryClient({
@@ -54,12 +55,22 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path:"/createToken",
-    element:(
+    path: "/createToken",
+    element: (
       <>
-      <Navbar />
-      <CreateToken />
-      <Footer />  
+        <Navbar />
+        <CreateToken />
+        <Footer />
+      </>
+    )
+  },
+  {
+    path: "/trade/:pairAddress",
+    element: (
+      <>
+        <Navbar />
+        <TradePage />
+        <Footer />
       </>
     )
   }

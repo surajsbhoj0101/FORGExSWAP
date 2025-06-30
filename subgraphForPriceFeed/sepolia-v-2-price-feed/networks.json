@@ -1,0 +1,8 @@
+{
+  "sepolia": {
+    "UniswapV2Factory": {
+      "address": "0xF62c03E08ada871A0bEb309762E260a7a6a880E6",
+      "startBlock": 1.405393300156076e+48
+    }
+  }
+}

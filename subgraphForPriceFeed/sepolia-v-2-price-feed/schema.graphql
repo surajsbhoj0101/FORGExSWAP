@@ -1,0 +1,10 @@
+type PairCreated @entity(immutable: true) {
+  id: Bytes!
+  token0: Bytes! # address
+  token1: Bytes! # address
+  pair: Bytes! # address
+  param3: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
