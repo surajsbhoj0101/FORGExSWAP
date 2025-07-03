@@ -6,16 +6,40 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useWalletClient } from 'wagmi';
 import { getAmountHold } from '../../../utils/fetchAmountHold';
 import { FetchSwapData } from '../../../utils/swapDataFetch';
+import { swapTokens } from '../../../utils/swapTokens';
+import { toast } from "react-toastify";
+import { gql, request } from 'graphql-request';
+import { BrowserProvider, ZeroAddress } from 'ethers';
+import ToastContainer from '../../../components/toastContainer';
+
+
+const syncQuery = gql`
+  query LatestSync($pair: Bytes!) { 
+  candles(first: 1, orderBy: timestamp, orderDirection: desc,
+   where: {
+    pair: $pair,
+    interval: "1d"
+  }) {
+    id
+    timestamp
+    close
+  }
+  }
+`;
+
+const url = 'https://api.studio.thegraph.com/query/113184/sepolia-v-2-price-feed/version/latest';
+const headers = { Authorization: `Bearer ff06a2cbebb8a0e457b1904571cb9b50` };
 
 function TradePage() {
+  const[price,setPrice]= useState();
   const [isFetchingQuotes, setFetchingQuotes] = useState(false);
   const isUserInput = useRef(false);
-  const { Data: walletClient } = useWalletClient();
+  const { data: walletClient } = useWalletClient();
   const { isConnected, address } = useAccount();
   const [loading, setLoading] = useState(false)
   const [Amount, setAmount] = useState();
   const { pairAddress } = useParams();
-  const [data, setData] = useState(null);
+  const [Data, setData] = useState(null);
   const [isNotFound, setIsNotFound] = useState(false);
   const [isTradeBuy, setIsTradeBuy] = useState(true);
   const [tradeInfo, setTradeInfo] = useState({
@@ -26,7 +50,8 @@ function TradePage() {
     buyToken: '',
     sellToken: ''
   });
-
+  const [isBuying, setIsBuying] = useState(false);
+  const [isSelling, setIsSelling] = useState(false);
   const [availableFswap, setAvailableFswap] = useState();
   const [availableCustomToken, setAvailableCustomToken] = useState();
   const [lastChanged, setLastChanged] = useState("");
@@ -54,13 +79,13 @@ function TradePage() {
   useEffect(() => {
     async function fetchLiveData() {
 
-      if (loading || !data?.fswapAddress || !tradeInfo?.amountFswap || !data?.pairAddress) {
-        console.warn("Mising required data from fetch swapData Fswap")
+      if (loading || !Data?.fswapAddress || !tradeInfo?.amountFswap || !Data?.pairAddress) {
+        console.warn("Mising required Data from fetch swapData Fswap")
         return
       }
       setFetchingQuotes(true)
       try {
-        const result = await FetchSwapData(data?.fswapAddress, tradeInfo?.amountFswap, data?.pairAddress)
+        const result = await FetchSwapData(Data?.fswapAddress, tradeInfo?.amountFswap, Data?.pairAddress)
         setTradeInfo(prev => ({
           ...prev,
           amountFswapTo: result?.amountOut || "0"
@@ -75,16 +100,17 @@ function TradePage() {
     fetchLiveData()
   }, [lastChanged, tradeInfo.amountFswap])
 
+  //fetch live data for customToken
   useEffect(() => {
     async function fetchLiveData() {
 
-      if (loading || !data?.customToken || !tradeInfo?.amountCustomToken || !data?.pairAddress) {
-        console.warn("Mising required data from fetch swapData Fswap")
+      if (loading || !Data?.customToken || !tradeInfo?.amountCustomToken || !Data?.pairAddress) {
+        console.warn("Mising required Data from fetch swapData Fswap")
         return
       }
       setFetchingQuotes(true)
       try {
-        const result = await FetchSwapData(data?.customToken, tradeInfo?.amountCustomToken, data?.pairAddress)
+        const result = await FetchSwapData(Data?.customToken, tradeInfo?.amountCustomToken, Data?.pairAddress)
         setTradeInfo(prev => ({
           ...prev,
           amountCustomTokenTo: result?.amountOut || "0"
@@ -106,6 +132,11 @@ function TradePage() {
         const res = await axios.get(`http://localhost:3002/fetchPair/${pairAddress}`);
 
         setData(res.data);
+        console.log(res.data)
+        const result = await request(url, syncQuery, { pair: pairAddress }, headers);
+        const price = result?.candles[0]?.close;
+        console.log(price)
+        setPrice(price)
         setLoading(false)
       } catch (error) {
         setIsNotFound(true);
@@ -119,15 +150,104 @@ function TradePage() {
   useEffect(() => {
     async function fetchBalance(params) {
       if (isConnected) {
-        const amount = await getAmountHold(address, data?.fswapAddress);
+        const amount = await getAmountHold(address, Data?.fswapAddress);
         setAvailableFswap(amount);
 
-        const Amount = await getAmountHold(address, data?.customToken);
+        const Amount = await getAmountHold(address, Data?.customToken);
         setAvailableCustomToken(Amount);
       }
     }
     fetchBalance();
-  }, [isConnected, pairAddress, data])
+  }, [isConnected, pairAddress, Data])
+  //Buy handler
+  async function handleBuyCustomToken(e) {
+    e.preventDefault()
+    if (!tradeInfo?.amountFswap) {
+      console.warn("Some fields are empty")
+      return
+    }
+
+    try {
+
+      if (!walletClient) {
+        toast.error("No wallet connected");
+        return;
+      }
+
+      setIsBuying(true)
+      const provider = new BrowserProvider(walletClient);
+      const signer = await provider.getSigner();
+      console.log("Hey")
+      const result = await swapTokens({
+        amountIn: tradeInfo?.amountFswap,
+        tokenInAddress: Data?.fswapAddress,
+        tokenOutAddress: Data?.customToken,
+        signer: signer,
+      })
+
+      if (result.isTxSuccessful) {
+        toast.success(" Swap successful!");
+
+      } else {
+        toast.error("Swap failed!");
+      }
+    } catch (error) {
+      toast.error("Swap failed:", error.message);
+    } finally {
+      setTradeInfo(prev => ({
+        ...prev,
+        amountFswap: "",
+        amountFswapTo: "",
+        amountCustomToken: "",
+        amountCustomTokenTo: ""
+      }));
+      setIsBuying(false);
+    }
+  }
+
+  async function handleSellCustomToken(e) {
+    e.preventDefault()
+    if (!tradeInfo?.amountCustomToken) {
+      console.warn("Some fields are empty")
+      return
+    }
+
+    try {
+
+      if (!walletClient) {
+        toast.error("No wallet connected");
+        return;
+      }
+
+      setIsSelling(true)
+      const provider = new BrowserProvider(walletClient);
+      const signer = await provider.getSigner();
+      const result = await swapTokens({
+        amountIn: tradeInfo?.amountCustomToken,
+        tokenInAddress: Data?.customToken,
+        tokenOutAddress: Data?.fswapAddress,
+        signer: signer,
+      })
+
+      if (result.isTxSuccessful) {
+        toast.success(" Swap successful!");
+
+      } else {
+        toast.error("Swap failed!");
+      }
+    } catch (error) {
+      toast.error("Swap failed:", error.message);
+    } finally {
+      setTradeInfo(prev => ({
+        ...prev,
+        amountFswap: "",
+        amountFswapTo: "",
+        amountCustomToken: "",
+        amountCustomTokenTo: ""
+      }));
+      setIsSelling(false);
+    }
+  }
 
 
   function handlePercentClick(field, value, percent) {
@@ -147,20 +267,21 @@ function TradePage() {
           <div className="flex items-center gap-4 border-b pb-4 mb-4 border-gray-300 dark:border-gray-600">
             <img
               className="w-16 h-16 rounded-full"
-              src={`https://scarlet-naval-lizard-255.mypinata.cloud/ipfs/${data?.customTokenImage}`}
+              src={`https://scarlet-naval-lizard-255.mypinata.cloud/ipfs/${Data?.customTokenImage}`}
               alt="Token Logo"
             />
+            <ToastContainer />
             <div>
-              <div className="text-2xl font-bold">{data?.customTokenName} / FSWAP</div>
+              <div className="text-2xl font-bold">{Data?.customTokenName} / FSWAP</div>
               <div className="text-gray-500 text-sm">{pairAddress}</div>
             </div>
             <div className="ml-auto text-right">
               <div className="text-sm">Price</div>
-              <div className="text-green-400 text-lg font-semibold">{data?.price || '4.23'} FSWAP</div>
-              <div className="text-sm text-gray-400">${data?.usdPrice || '1.32'}</div>
+              <div className="text-green-400 text-lg font-semibold">{Number(price).toFixed(4) } FSWAP</div>
+              <div className="text-sm text-gray-400">${Data?.usdPrice || '1.32'}</div>
             </div>
           </div>
-          <TradeChart />
+          <TradeChart pairAddress={Data?.pairAddress} />
         </div>
 
         <div className="flex-1 min-w-[30%] bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow">
@@ -180,7 +301,7 @@ function TradePage() {
           </div>
 
           {isTradeBuy ? (
-            <form className="flex flex-col gap-4">
+            <form className="flex flex-col gap-4" onSubmit={handleBuyCustomToken}>
               <div>
                 <label className="block text-sm font-medium">Amount in FSWAP</label>
                 <input
@@ -219,14 +340,14 @@ function TradePage() {
                   type="submit"
                   className="bg-green-500 hover:bg-green-600 text-white py-2 rounded-md"
                 >
-                  Buy
+                  {isBuying ? "Buying please wait ..." : "Buy"}
                 </button>)
 
               ) : (<div className='flex justify-center items-center'><ConnectButton /></div>)}
 
             </form>
           ) : (
-            <form className="flex flex-col gap-4">
+            <form className="flex flex-col gap-4" onSubmit={handleSellCustomToken}>
               <div>
                 <label className="block text-sm font-medium">Amount in Custom Token</label>
                 <input
@@ -265,7 +386,7 @@ function TradePage() {
                   type="submit"
                   className="bg-red-500 hover:bg-red-600 text-white py-2 rounded-md"
                 >
-                  Sell
+                  {isSelling ? "Selling tokens Please wait" : "Sell"}
                 </button>)
 
               ) : (<div className='flex items-center justify-center'><ConnectButton /></div>)}

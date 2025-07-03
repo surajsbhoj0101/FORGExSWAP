@@ -45,7 +45,13 @@ function Navbar() {
             Create Token
           </Link>
           <Link
-            to="#"
+            to="/liquidity"
+            className="hover:text-orange-500 transition-colors duration-300"
+          >
+            Liquidity
+          </Link>
+          <Link
+            to="/portfolio"
             className="hover:text-violet-500 transition-colors duration-300"
           >
             Portfolio
@@ -138,7 +144,7 @@ function Navbar() {
           </Link>
 
           <Link
-            to="#"
+            to="/createToken"
             onClick={closeSidebar}
             className="hover:text-blue-500 transition duration-200 transform hover:scale-105"
           >
@@ -146,7 +152,7 @@ function Navbar() {
           </Link>
 
           <Link
-            to="#"
+            to="/portfolio"
             onClick={closeSidebar}
             className="hover:text-violet-500 transition duration-200 transform hover:scale-105"
           >

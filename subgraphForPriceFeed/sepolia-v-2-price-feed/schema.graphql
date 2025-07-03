@@ -8,3 +8,38 @@ type PairCreated @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type Sync @entity(immutable: true){
+  id: Bytes!
+  pair: Bytes!
+  reserve0: BigInt!
+  reserve1: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Candle @entity(immutable: false){
+  id: ID!
+  pair: Bytes!
+  interval: String!
+  timestamp: BigInt!
+  open: BigDecimal!
+  high: BigDecimal!
+  low: BigDecimal!
+  close: BigDecimal!
+}
+
+type Swap @entity(immutable: true){
+  id: Bytes!
+  pair: Bytes!
+  sender: Bytes!
+  amount0In: BigInt!
+  amount1In: BigInt!
+  amount0Out: BigInt!
+  amount1Out: BigInt!
+  to: Bytes!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

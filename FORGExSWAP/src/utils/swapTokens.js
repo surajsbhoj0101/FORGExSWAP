@@ -11,6 +11,7 @@ export async function swapTokens({
     tokenOutAddress,
     signer
 }) {
+   
     if (!signer) throw new Error("No signer provided");
     const router = new Contract(routerAddress, IUniswapV2Router02.abi, signer);
     console.log("Signer address:", await signer.getAddress());
@@ -22,7 +23,7 @@ export async function swapTokens({
     if (!check.exists) {
         throw new error("Pair doesn't exists")
     }
-
+    
     const amountData = await FetchSwapData(tokenInAddress, amountIn, check.pairAddress);
     console.log("Approval confirmed.");
     const amountInParsed = parseUnits(amountIn, amountData.inDecimal);

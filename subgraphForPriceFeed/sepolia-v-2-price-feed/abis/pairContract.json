@@ -1,0 +1,49 @@
+[
+  {
+    "name": "getReserves",
+    "inputs": [],
+    "outputs": [
+      { "internalType": "uint112", "name": "_reserve0", "type": "uint112" },
+      { "internalType": "uint112", "name": "_reserve1", "type": "uint112" },
+      { "internalType": "uint32", "name": "_blockTimestampLast", "type": "uint32" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "name": "token0",
+    "inputs": [],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "name": "token1",
+    "inputs": [],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "sender", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "amount0In", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "amount1In", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "amount0Out", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "amount1Out", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "to", "type": "address" }
+    ],
+    "name": "Swap",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint112", "name": "reserve0", "type": "uint112" },
+      { "indexed": false, "internalType": "uint112", "name": "reserve1", "type": "uint112" }
+    ],
+    "name": "Sync",
+    "type": "event"
+  }
+]

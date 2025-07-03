@@ -8,11 +8,13 @@ import Footer from "./components/Footer.jsx";
 import { ThemeProvider } from "./contexts/ThemeContext.jsx";
 import AppProviders from "./components/AppProviders.jsx";
 import TradePriceShow from "./pages/trade/tradePriceShow.jsx";
-import Swap from "./pages/swap.jsx";
+import SwapPage from "./pages/SwapPage.jsx";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import CreateToken from "./pages/createToken.jsx";
 import TradePage from "./pages/trade/tradePair/tradePage.jsx";
-
+import PortfolioPage from "./pages/portfolioPage.jsx";
+import LiquidityPage from "./pages/liquidity/liquidityPage.jsx";
+import CreatePosition from "./pages/liquidity/liquidityHandle/createPosition.jsx";
 // Create the client
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,7 +51,7 @@ const router = createBrowserRouter([
     element: (
       <>
         <Navbar />
-        <Swap />
+        <SwapPage/>
         <Footer />
       </>
     ),
@@ -70,6 +72,36 @@ const router = createBrowserRouter([
       <>
         <Navbar />
         <TradePage />
+        <Footer />
+      </>
+    )
+  },
+  {
+    path: "/portfolio",
+    element: (
+      <>
+        <Navbar />
+        <PortfolioPage />
+        <Footer />
+      </>
+    )
+
+  },
+  {
+    path: "/liquidity",
+    element: (
+      <>
+        <Navbar />
+        <LiquidityPage />
+        <Footer />
+      </>
+    )
+  }, {
+    path: "/liquidity/createPostion",
+    element: (
+      <>
+        <Navbar />
+        <CreatePosition />
         <Footer />
       </>
     )

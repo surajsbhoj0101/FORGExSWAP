@@ -2,6 +2,7 @@ import { JsonRpcProvider, Contract, ZeroAddress, parseUnits, formatUnits } from 
 import IUniswapV2Factory from "@uniswap/v2-core/build/IUniswapV2Factory.json";
 import IUniswapV2Pair from "@uniswap/v2-core/build/IUniswapV2Pair.json";
 import IERC20 from "@openzeppelin/contracts/build/contracts/ERC20.json";
+import { from } from "form-data";
 
 
 const provider = new JsonRpcProvider(import.meta.env.VITE_API_URL || "https://sepolia.infura.io/v3/c2e1c563b7f64ab78b463601b03a9bdc");
@@ -25,14 +26,18 @@ export async function FetchSwapData(tokenA, amountInRaw, pairAddress) {
     token1Contract.decimals(),
   ]);
 
-  let reserveIn, reserveOut, inDecimals, outDecimals;
+  let reserveIn, reserveOut, inDecimals, outDecimals,resvIn,resvOut;
 
   if (tokenA.toLowerCase() === token0.toLowerCase()) {
+    resvIn = formatUnits(reserve0,inDecimals)
+    resvOut = formatUnits(reserve1,outDecimals)
     reserveIn = reserve0;
     reserveOut = reserve1;
     inDecimals = decimals0;
     outDecimals = decimals1;
   } else {
+    resvIn = formatUnits(reserve1,outDecimals)
+    resvOut = formatUnits(reserve0,inDecimals)
     reserveIn = reserve1;
     reserveOut = reserve0;
     inDecimals = decimals1;
@@ -53,8 +58,11 @@ export async function FetchSwapData(tokenA, amountInRaw, pairAddress) {
   return {
 
     amountOut: formatUnits(amountOut, outDecimals),
+    amountIn: formatUnits(amountIn, inDecimals),
     inDecimal: inDecimals,
-    amountOutRaw: amountOut  // BigInt
+    amountOutRaw: amountOut,
+    reserveOut: resvOut,
+    reserveIn: resvIn // BigInt
   };
 }
 
@@ -95,6 +103,6 @@ export async function checkSwapPairExists(tokenA, tokenB) {
       pairAddress: pairAddress
     }
   }
-  
+
 }
 

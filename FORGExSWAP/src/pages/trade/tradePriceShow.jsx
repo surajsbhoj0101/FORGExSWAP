@@ -5,21 +5,20 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const syncQuery = gql`
-  query LatestSync($pair: Bytes!) {
-    syncs(
-      where: { pair: $pair }
-      orderBy: blockTimestamp
-      orderDirection: desc
-      first: 1
-    ) {
-      reserve0
-      reserve1
-      blockTimestamp
-    }
+  query LatestSync($pair: Bytes!) { 
+  candles(first: 1, orderBy: timestamp, orderDirection: desc,
+   where: {
+    pair: $pair,
+    interval: "1d"
+  }) {
+    id
+    timestamp
+    close
+  }
   }
 `;
 
-const url = 'https://api.studio.thegraph.com/query/113184/sepolia-testnet-price-feed/version/latest';
+const url = 'https://api.studio.thegraph.com/query/113184/sepolia-v-2-price-feed/version/latest';
 const headers = { Authorization: `Bearer ff06a2cbebb8a0e457b1904571cb9b50` };
 
 function TradePriceShow() {
@@ -32,19 +31,14 @@ function TradePriceShow() {
     return addressA < addressB ? [tokenA, tokenB] : [tokenB, tokenA];
   }
 
-  async function getResult(pairName, address, tokenA, tokenB, customTokenImage) {
+  async function getResult(pairName, address, customTokenImage) {
     try {
+      console.log("Fetching ....")
       const result = await request(url, syncQuery, { pair: address }, headers);
-      const sync = result?.syncs?.[0];
-      if (!sync) return null;
-
-      const { reserve0, reserve1 } = sync;
-      const [token0, token1] = sortTokens(tokenA, tokenB);
-
-      const price =
-        token0 === tokenA
-          ? Number(formatUnits(reserve1, 18)) / Number(formatUnits(reserve0, 18))
-          : Number(formatUnits(reserve0, 18)) / Number(formatUnits(reserve1, 18));
+      
+      const price = result?.candles[0]?.close;
+     
+      console.log(price)
 
       return {
         pairAddress: address,
@@ -83,7 +77,7 @@ function TradePriceShow() {
           customTokenImage
         } = pairAddresses[i];
 
-        const data = await getResult(pairName, pairAddress, customToken, fswapAddress, customTokenImage);
+        const data = await getResult(pairName, pairAddress, customTokenImage);
         if (data) results.push(data);
       }
       setPairPrices(results);
