@@ -4,12 +4,11 @@ import { FetchSwapData, checkSwapPairExists } from '../utils/swapDataFetch'
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useWalletClient } from 'wagmi';
 import { BrowserProvider, ZeroAddress } from 'ethers';
-import TokenAmountHold from './tokenAmountHold';
+import { getAmountHold } from '../utils/fetchAmountHold';
 import { swapTokens } from '../utils/swapTokens';
 import ToastContainer from './toastContainer';
 import { toast } from "react-toastify";
 import { swapNativeTokens } from '../utils/swapNativeToken';
-import Select from "react-select"
 import { IoClose } from "react-icons/io5";
 
 
@@ -21,6 +20,10 @@ function Swap() {
   const isUserInput = useRef(false); //Unlike useState, changing .current does NOT re-render the component.
 
   const [isTokenSelection, setIsTokenSelection] = useState(false);
+  const [availableToken, setAvailableToken] = useState({
+    sellToken: "",
+    buyToken: ""
+  });
 
   const [valueData, setValueData] = useState({
     buyAddress: "",
@@ -133,7 +136,6 @@ function Swap() {
 
           if (result.isTxSuccessful) {
             toast.success(" Swap successful!");
-
           } else {
             toast.error("Swap failed!");
           }
@@ -289,6 +291,22 @@ function Swap() {
     checkPairAndFetch();
   }, [valueData, lastChanged]);
 
+  useEffect(() => {
+    async function fetchBalance(params) {
+      if (isConnected && (valueData?.buyAddress !== "" || valueData?.sellAddress !== "")) {
+        const token0 = await getAmountHold(address, valueData?.sellAddress);
+        const token1 = await getAmountHold(address, valueData?.buyAddress);
+
+        setAvailableToken((prev) => ({
+          ...prev,
+          sellToken: token0,
+          buyToken: token1
+        }))
+      }
+    }
+    fetchBalance();
+  }, [isConnected, valueData.sellAddress, valueData.buyAddress])
+
 
   useEffect(() => {
     setAddresses(addressFeed);
@@ -300,14 +318,14 @@ function Swap() {
       <ToastContainer />
       {!isTokenSelection ? (
         isSwapping ? (
-          <div className="relative w-full p-4 border-2 border-cyan-500 rounded-lg   bg-white dark:bg-gray-800 text-gray-900 dark:text-white flex flex-col gap-4 items-center">
+          <div className="relative w-full p-6 border-2 border-cyan-500 bg-gray-100   dark:bg-gray-800 text-gray-900 dark:text-white ">
             <div className="text-center space-y-2">
               <div className="text-lg font-semibold">Swapping in Progress...</div>
               <div className="mt-2 text-sm space-y-1">
                 <div>
                   <span className="font-semibold">From:</span>{' '}
                   {Number(transactionPreview.sellAmount)}{' '}
-                  {addresses.find(a => a.tokenAddress === valueData.sellAddress)
+                  {addresses.find(a => a.tokenAddress === valueData.sellAddress) //?. is called optional chaining operator
                     ?.tokenSymbol || ''}
                 </div>
                 <div>
@@ -337,11 +355,10 @@ function Swap() {
 
             {/* Sell Section */}
             <div>
-              <div className="flex text-gray-600 dark:text-gray-300 justify-between text-sm font-medium">
+              <div className="flex  text-gray-600 dark:text-gray-300 justify-between text-sm font-medium">
                 <p>You sell</p>
                 <div className="flex space-x-1">
-                  <p>Balance -</p>
-                  <TokenAmountHold tokenAddress={valueData.sellAddress} />
+                  <p>Balance -{availableToken.sellToken || 0}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -380,7 +397,7 @@ function Swap() {
             </div>
 
             {/* Switch Button */}
-            <div className="flex justify-center">
+            <div className="flex mt-1 justify-center">
               <button
                 title="switch"
                 onClick={handleSwitch}
@@ -392,9 +409,15 @@ function Swap() {
 
             {/* Buy Section */}
             <div>
-              <label className="block text-gray-600 dark:text-gray-300 text-sm font-medium">
-                You buy
-              </label>
+              <div className="flex  text-gray-600 dark:text-gray-300 justify-between text-sm font-medium">
+                <p>You Buy</p>
+
+
+                <div className="flex space-x-1">
+                  <p>Balance -{availableToken.buyToken || 0}</p>
+                </div>
+
+              </div>
               <div className="flex items-center gap-3">
                 <input
                   required
@@ -492,16 +515,16 @@ function Swap() {
           </div>
         )
       ) : (
-        <div className="absolute rounded-md flex flex-col space-y-4 h-full top-0 left-0 z-30 w-full bg-white dark:bg-gray-800 p-4 overflow-y-auto">
-          <div className="flex items-center space-x-3">
+        <div className="absolute top-0 left-0 z-30 w-full h-full bg-white dark:bg-gray-800 p-4 overflow-y-auto rounded-md">
+          <div className="flex items-center space-x-3 mb-4">
             <input
               type="text"
               placeholder="Search Tokens"
-              className="flex-1 border sm:w-full w-24 border-gray-300 dark:border-gray-600 rounded-lg px-2 py-2 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-2 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100"
             />
             <button
-              className="text-red-500 rounded-md hover:cursor-pointer border-1 dark:border-white border-gray-400"
-              onClick={() => setIsTokenSelection(prev => !prev)}
+              className="text-red-500"
+              onClick={() => setIsTokenSelection(false)}
             >
               <IoClose size={24} />
             </button>
@@ -511,16 +534,16 @@ function Swap() {
             <div
               key={index}
               onClick={() => handleTokenSelect(item.tokenAddress)}
-              className="flex dark:text-white items-center gap-6 cursor-pointer p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+              className="flex items-center gap-4 cursor-pointer p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
             >
               <img src={item.tokenImage} alt={item.tokenSymbol} className="w-6 h-6 rounded-full" />
-              <div className="flex flex-col">
-                <span className="font-medium">
+              <div>
+                <div className="font-medium text-gray-800 dark:text-white">
                   {item.tokenName} ({item.tokenSymbol})
-                </span>
-                <span className="text-xs text-gray-500 max-w-[200px]">
-                  {`${item.tokenAddress.slice(0, 8)}.....${item.tokenAddress.slice(-8)}`}
-                </span>
+                </div>
+                <div className="text-xs text-gray-500">
+                  {item.tokenAddress.slice(0, 6)}...{item.tokenAddress.slice(-4)}
+                </div>
               </div>
             </div>
           ))}
