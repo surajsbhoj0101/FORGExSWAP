@@ -22,23 +22,44 @@ const syncQuery = gql`
 const url = 'https://api.studio.thegraph.com/query/113184/sepolia-v-2-price-feed/version/latest';
 const headers = { Authorization: `Bearer ff06a2cbebb8a0e457b1904571cb9b50` };
 
-const TradeChart = ({ pairAddress }) => {
+const TradeChart = ({ pairAddress, tokenA, tokenB }) => {
     const [series, setSeries] = useState();
+
+    function sortTokens(tokenA, tokenB) {
+        const [addressA, addressB] = [tokenA.toLowerCase(), tokenB.toLowerCase()];
+        return addressA < addressB ? [tokenA, tokenB] : [tokenB, tokenA];
+    }
 
     useEffect(() => {
         async function fetchCandleData() {
             try {
+                const [token0, token1] = sortTokens(tokenA, tokenB);
+                const isInverted = tokenA.toLowerCase() !== token0.toLowerCase();
                 const result = await request(url, syncQuery, { pair: pairAddress }, headers);
-                const seriesData = result.candles.map(candle => ({
-                    x: new Date(Number(candle.timestamp) * 1000),
-                    y: [
-                        parseFloat(candle.open),
-                        parseFloat(candle.high),
-                        parseFloat(candle.low),
-                        parseFloat(candle.close)
-                    ]
-                }));
-                setSeries([{ data: seriesData }]);
+                if (isInverted) {
+                    const seriesData = result.candles.map(candle => ({
+                        x: new Date(Number(candle.timestamp) * 1000),
+                        y: [
+                            parseFloat(1 / candle.open),
+                            parseFloat(1 / candle.high),
+                            parseFloat(1 / candle.low),
+                            parseFloat(1 / candle.close)
+                        ]
+                    }));
+                    setSeries([{ data: seriesData }]);
+                } else {
+                    const seriesData = result.candles.map(candle => ({
+                        x: new Date(Number(candle.timestamp) * 1000),
+                        y: [
+                            parseFloat(candle.open),
+                            parseFloat(candle.high),
+                            parseFloat(candle.low),
+                            parseFloat(candle.close)
+                        ]
+                    }));
+                    setSeries([{ data: seriesData }]);
+                }
+
             } catch (error) {
                 console.error(error);
             }
@@ -52,7 +73,7 @@ const TradeChart = ({ pairAddress }) => {
     return (
         <div>
             <div id="chart">
-                <ReactApexChart 
+                <ReactApexChart
                     options={{
                         chart: { type: "candlestick", height: 350 },
                         xaxis: { type: "datetime" },

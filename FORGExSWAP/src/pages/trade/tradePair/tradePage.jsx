@@ -31,7 +31,7 @@ const url = 'https://api.studio.thegraph.com/query/113184/sepolia-v-2-price-feed
 const headers = { Authorization: `Bearer ff06a2cbebb8a0e457b1904571cb9b50` };
 
 function TradePage() {
-  const[price,setPrice]= useState();
+  const [price, setPrice] = useState();
   const [isFetchingQuotes, setFetchingQuotes] = useState(false);
   const isUserInput = useRef(false);
   const { data: walletClient } = useWalletClient();
@@ -43,8 +43,8 @@ function TradePage() {
   const [isNotFound, setIsNotFound] = useState(false);
   const [isTradeBuy, setIsTradeBuy] = useState(true);
   const [tradeInfo, setTradeInfo] = useState({
-    amountFswap: '',
-    amountFswapTo: '',
+    amountSecondaryToken: '',
+    amountSecondaryTokenTo: '',
     amountCustomToken: '',
     amountCustomTokenTo: '',
     buyToken: '',
@@ -52,7 +52,7 @@ function TradePage() {
   });
   const [isBuying, setIsBuying] = useState(false);
   const [isSelling, setIsSelling] = useState(false);
-  const [availableFswap, setAvailableFswap] = useState();
+  const [availableSecondaryToken, setavailableSecondaryToken] = useState();
   const [availableCustomToken, setAvailableCustomToken] = useState();
   const [lastChanged, setLastChanged] = useState("");
 
@@ -70,7 +70,7 @@ function TradePage() {
     isUserInput.current = true;
     setTradeInfo(prev => ({
       ...prev,
-      amountFswap: e.target.value || "0"
+      amountSecondaryToken: e.target.value || "0"
     }));
     setLastChanged('buy');
 
@@ -79,16 +79,16 @@ function TradePage() {
   useEffect(() => {
     async function fetchLiveData() {
 
-      if (loading || !Data?.fswapAddress || !tradeInfo?.amountFswap || !Data?.pairAddress) {
+      if (loading || !Data?.secondaryTokenAddress || !tradeInfo?.amountSecondaryToken || !Data?.pairAddress) {
         console.warn("Mising required Data from fetch swapData Fswap")
         return
       }
       setFetchingQuotes(true)
       try {
-        const result = await FetchSwapData(Data?.fswapAddress, tradeInfo?.amountFswap, Data?.pairAddress)
+        const result = await FetchSwapData(Data?.secondaryTokenAddress, tradeInfo?.amountSecondaryToken, Data?.pairAddress)
         setTradeInfo(prev => ({
           ...prev,
-          amountFswapTo: result?.amountOut || "0"
+          amountSecondaryTokenTo: result?.amountOut || "0"
         }));
         setFetchingQuotes(false)
       } catch (error) {
@@ -98,7 +98,7 @@ function TradePage() {
     }
 
     fetchLiveData()
-  }, [lastChanged, tradeInfo.amountFswap])
+  }, [lastChanged, tradeInfo.amountSecondaryToken])
 
   //fetch live data for customToken
   useEffect(() => {
@@ -125,20 +125,28 @@ function TradePage() {
     fetchLiveData()
   }, [lastChanged, tradeInfo.amountCustomToken])
 
-
+  function sortTokens(tokenA, tokenB) {
+    const [addressA, addressB] = [tokenA.toLowerCase(), tokenB.toLowerCase()];
+    return addressA < addressB ? [tokenA, tokenB] : [tokenB, tokenA];
+  }
   useEffect(() => {
     async function fetchPairData() {
       try {
         const res = await axios.get(`http://localhost:3002/fetchPair/${pairAddress}`);
 
         setData(res.data);
-        console.log(res.data)
-        const result = await request(url, syncQuery, { pair: pairAddress }, headers);
-        const price = result?.candles[0]?.close;
+    
+        const [token0, token1] = sortTokens(res.data.customToken, res.data.secondaryTokenAddress);
+        const isInverted = res.data?.customToken.toLowerCase() !== token0.toLowerCase();
+        const result = await request(url, syncQuery, { pair: res.data.pairAddress }, headers);
+        let price = parseFloat(result?.candles[0]?.close ?? 0);
+        if (price === 0) return null;
+        if (isInverted) price = 1 / price;
         console.log(price)
         setPrice(price)
         setLoading(false)
       } catch (error) {
+        console.log(error)
         setIsNotFound(true);
       }
     }
@@ -150,8 +158,8 @@ function TradePage() {
   useEffect(() => {
     async function fetchBalance(params) {
       if (isConnected) {
-        const amount = await getAmountHold(address, Data?.fswapAddress);
-        setAvailableFswap(amount);
+        const amount = await getAmountHold(address, Data?.secondaryTokenAddress);
+        setavailableSecondaryToken(amount);
 
         const Amount = await getAmountHold(address, Data?.customToken);
         setAvailableCustomToken(Amount);
@@ -162,7 +170,7 @@ function TradePage() {
   //Buy handler
   async function handleBuyCustomToken(e) {
     e.preventDefault()
-    if (!tradeInfo?.amountFswap) {
+    if (!tradeInfo?.amountSecondaryToken) {
       console.warn("Some fields are empty")
       return
     }
@@ -179,8 +187,8 @@ function TradePage() {
       const signer = await provider.getSigner();
       console.log("Hey")
       const result = await swapTokens({
-        amountIn: tradeInfo?.amountFswap,
-        tokenInAddress: Data?.fswapAddress,
+        amountIn: tradeInfo?.amountSecondaryToken,
+        tokenInAddress: Data?.secondaryTokenAddress,
         tokenOutAddress: Data?.customToken,
         signer: signer,
       })
@@ -196,8 +204,8 @@ function TradePage() {
     } finally {
       setTradeInfo(prev => ({
         ...prev,
-        amountFswap: "",
-        amountFswapTo: "",
+        amountSecondaryToken: "",
+        amountSecondaryTokenTo: "",
         amountCustomToken: "",
         amountCustomTokenTo: ""
       }));
@@ -225,7 +233,7 @@ function TradePage() {
       const result = await swapTokens({
         amountIn: tradeInfo?.amountCustomToken,
         tokenInAddress: Data?.customToken,
-        tokenOutAddress: Data?.fswapAddress,
+        tokenOutAddress: Data?.secondaryTokenAddress,
         signer: signer,
       })
 
@@ -240,8 +248,8 @@ function TradePage() {
     } finally {
       setTradeInfo(prev => ({
         ...prev,
-        amountFswap: "",
-        amountFswapTo: "",
+        amountSecondaryToken: "",
+        amountSecondaryTokenTo: "",
         amountCustomToken: "",
         amountCustomTokenTo: ""
       }));
@@ -272,16 +280,16 @@ function TradePage() {
             />
             <ToastContainer />
             <div>
-              <div className="text-2xl font-bold">{Data?.customTokenName} / FSWAP</div>
+              <div className="text-2xl font-bold">{Data?.customTokenName} / {Data?.secondaryTokenName}</div>
               <div className="text-gray-500 text-sm">{pairAddress}</div>
             </div>
             <div className="ml-auto text-right">
               <div className="text-sm">Price</div>
-              <div className="text-green-400 text-lg font-semibold">{Number(price).toFixed(4) } FSWAP</div>
-              <div className="text-sm text-gray-400">${Data?.usdPrice || '1.32'}</div>
+              <div className="text-green-400 text-lg font-semibold">{Number(price).toFixed(4)} {Data?.secondaryTokenName}</div>
+
             </div>
           </div>
-          <TradeChart pairAddress={Data?.pairAddress} />
+          <TradeChart pairAddress={Data?.pairAddress} tokenA={Data?.customToken} tokenB={Data?.secondaryTokenAddress} />
         </div>
 
         <div className="flex-1 min-w-[30%] bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow">
@@ -303,15 +311,15 @@ function TradePage() {
           {isTradeBuy ? (
             <form className="flex flex-col gap-4" onSubmit={handleBuyCustomToken}>
               <div>
-                <label className="block text-sm font-medium">Amount in FSWAP</label>
+                <label className="block text-sm font-medium">Amount in {Data?.secondaryTokenName}</label>
                 <input
                   type="number"
-                  name="amountFswap"
-                  value={tradeInfo.amountFswap}
+                  name="amountSecondaryToken"
+                  value={tradeInfo.amountSecondaryToken}
                   onChange={handleBuyChange}
                   className="w-full mt-1 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white"
                 />
-                <div className="text-xs text-gray-500">Available:  {availableFswap || "0"}</div>
+                <div className="text-xs text-gray-500">Available:  {availableSecondaryToken || "0"}</div>
               </div>
 
               <div className="flex justify-between">
@@ -319,7 +327,7 @@ function TradePage() {
                   <button
                     type="button"
                     key={percent}
-                    onClick={() => handlePercentClick('amountFswap', availableFswap, percent)}
+                    onClick={() => handlePercentClick('amountSecondaryToken', availableSecondaryToken, percent)}
                     className="px-3 py-1 border rounded-md text-sm hover:bg-green-100 dark:hover:bg-green-800"
                   >
                     {percent}%
@@ -328,7 +336,7 @@ function TradePage() {
               </div>
 
               <div className="bg-gray-200 dark:bg-gray-800 p-3 rounded-md">
-                You get: <span className="font-semibold">{tradeInfo.amountFswapTo || '0'}</span>
+                You get: <span className="font-semibold">{tradeInfo.amountSecondaryTokenTo || '0'}</span>
               </div>
 
 

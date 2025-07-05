@@ -162,6 +162,12 @@ function Swap() {
         estimatedPrice: "",
         slippage: "",
       }))
+
+      setAvailableToken(prev=>({
+        ...prev,
+        sellToken:"",
+        buyToken:""
+      }))
     }
   };
 

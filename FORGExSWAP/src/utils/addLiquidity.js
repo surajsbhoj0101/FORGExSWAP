@@ -5,33 +5,36 @@ import IUniswapV2Factory from "@uniswap/v2-core/build/IUniswapV2Factory.json";
 
 
 const routerAddress = "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3";
-const fswapAddress = "0x81D1eb8037C47E329900A3bf8a78814bc259c770";
 
-export async function addLiquidity(customTokenAddress, customTokenAmount, fswapAmount, signer, toAddress) {
-    const customTokenContract = new Contract(customTokenAddress, IERC20.abi, signer);
-    const fswapContract = new Contract(fswapAddress, IERC20.abi, signer);
+export async function addLiquidity(token0Address, token1Address, token0Amount, token1Amount, signer, toAddress) {
+    const token0Contract = new Contract(token0Address, IERC20.abi, signer);
+    const token1Contract = new Contract(token1Address, IERC20.abi, signer);
 
-    const customTokenParsed = parseUnits(customTokenAmount, 18); // bigint
-    const fswapParsed = parseUnits(fswapAmount, 18);             // bigint
+    const [decimals0, decimals1] = await Promise.all([
+        token0Contract.decimals(),
+        token1Contract.decimals(),
+    ]);
+    const token0Parsed = parseUnits(token0Amount, decimals0); // bigint
+    const token1Parsed = parseUnits(token1Amount, decimals1);             // bigint
 
-    const customTokenValue = customTokenParsed * 9n / 10n;
-    const fswapTokenValue = fswapParsed;
+    const token0Value = token0Parsed * 9n / 10n;
+    const token1Value = token1Parsed;
 
-    const minCustomToken = customTokenValue * 98n / 100n;
-    const minFswapToken = fswapTokenValue * 98n / 100n;
+    const minToken0 = token0Value * 98n / 100n;
+    const minToken1 = token1Value * 98n / 100n;
 
-    const customAllowance = await customTokenContract.allowance(await signer.getAddress(), routerAddress);
-    if (customAllowance < customTokenValue) {
-        const customTokenApproveTx =  await customTokenContract.approve(routerAddress, customTokenValue);
-        await customTokenApproveTx.wait()
-        console.log("custom token approved");
+    const token0Allowance = await token0Contract.allowance(await signer.getAddress(), routerAddress);
+    if (token0Allowance < token0Value) {
+        const token0ApproveTx = await token0Contract.approve(routerAddress, token0Value);
+        await token0ApproveTx.wait()
+        console.log("token0 Approved");
     }
 
-    const fswapAllowance = await fswapContract.allowance(await signer.getAddress(), routerAddress);
-    if (fswapAllowance < fswapTokenValue) {
-        const fswapTokenApproveTx =  await fswapContract.approve(routerAddress, fswapTokenValue);
-        await fswapTokenApproveTx.wait();
-        console.log("fswap token approved");
+    const token1Allowance = await token1Contract.allowance(await signer.getAddress(), routerAddress);
+    if (token1Allowance < token1Value) {
+        const token1ApproveTx = await token1Contract.approve(routerAddress, token1Value);
+        await token1ApproveTx.wait();
+        console.log("token1 approved");
     }
 
 
@@ -42,12 +45,12 @@ export async function addLiquidity(customTokenAddress, customTokenAmount, fswapA
     console.log("Calling addLiquidity");
 
     const tx = await routerContract.addLiquidity(
-        customTokenAddress,
-        fswapAddress,
-        customTokenValue,
-        fswapTokenValue,
-        minCustomToken,
-        minFswapToken,
+        token0Address,
+        token1Address,
+        token0Value,
+        token1Value,
+        minToken0,
+        minToken1,
         toAddress,
         deadline
     );
@@ -75,3 +78,5 @@ export async function addLiquidity(customTokenAddress, customTokenAmount, fswapA
         pairAddress: tokenCreatedEvent.args.pair
     };
 }
+
+

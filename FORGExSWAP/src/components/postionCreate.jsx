@@ -4,6 +4,10 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useWalletClient } from 'wagmi';
 import { getAmountHold } from '../utils/fetchAmountHold';
 import { IoClose } from "react-icons/io5";
+import { toast } from 'react-toastify';
+import { BrowserProvider, ZeroAddress } from 'ethers';
+import { checkSwapPairExists } from '../utils/swapDataFetch';
+import { FetchSwapData } from '../utils/swapDataFetch';
 
 function CreatePosition() {
     const { data: walletClient } = useWalletClient();
@@ -20,6 +24,7 @@ function CreatePosition() {
     const [lastChanged, setLastChanged] = useState("");
     const [isCreatingPos, setIsCreatingPos] = useState(false);
     const isUserInput = useRef(false);
+    const [isPairExists, setIsPairExists] = useState(false)
 
     const [pairData, setPairData] = useState({
         token0Address: "",
@@ -62,6 +67,81 @@ function CreatePosition() {
         fetchBalance();
     }, [isConnected, pairData.token1Address, pairData.token0Address])
 
+    useEffect(() => {
+        const checkPairAndFetch = async () => {
+            if (pairData.token0Address && pairData.token1Address && isUserInput.current) {
+
+                const result = await checkSwapPairExists(pairData.token0Address, pairData.token1Address);
+                if (result.exists) {
+                    setIsPairExists(true);
+                    
+                    fetchPairData(result.pairAddress);
+                } else {
+                    setIsPairExists(false);
+                }
+            }
+        };
+
+        async function fetchPairData(pairAddress) {
+            console.log("here")
+            try {
+                if (lastChanged === "token0") {
+                   
+                    const data = await FetchSwapData(
+                        pairData.token0Address,
+                        pairData.token0Value,
+                        pairAddress
+                    );
+
+                    const token1Value = pairData.token0Value * (data.reserveOut / data.reserveIn);
+
+                    setPairData(prev => ({
+                        ...prev,
+                        token1Value: token1Value
+                    }));
+                } else {
+                    const data = await FetchSwapData(
+                        pairData.token1Address,
+                        pairData.token1Value,
+                        pairAddress
+                    );
+
+                    const token0Value = pairData.token1Value * (data.reserveOut / data.reserveIn);
+
+                    setPairData(prev => ({
+                        ...prev,
+                        token0Value: token0Value
+                    }));
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                isUserInput.current = false;
+            }
+        }
+
+        checkPairAndFetch()
+    }, [pairData, lastChanged])
+
+
+
+    async function hanldeAddLiquidity(params) {
+        e.preventDefault();
+        if (!pairData.token0Address || !pairData.token1Address || !pairData.token0Value || !pairData.token1Value) {
+            toast.warn("Some field are empty")
+            return;
+        }
+
+        try {
+            const provider = new BrowserProvider(walletClient);
+            const signer = await provider.getSigner();//converts a wallet client (like MetaMask) into a signer
+
+
+        } catch (error) {
+
+        }
+    }
+
     return (
         <div className="w-full relative min-h-96 max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6">
             {!isTokenSelection ? (
@@ -69,7 +149,7 @@ function CreatePosition() {
                     <div>Creating Position...</div>
                 ) : (
                     <div className='relative w-full p-6 border-2 border-cyan-500 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-lg'>
-                        <form className='flex flex-col gap-8'>
+                        <form onSubmit={hanldeAddLiquidity} className='flex flex-col gap-8'>
                             <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-gray-100">
                                 Create Positions
                             </h1>
@@ -146,7 +226,11 @@ function CreatePosition() {
                                         placeholder="Amount Token 0"
                                         className='w-full rounded-lg px-4 py-3 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600'
                                         value={pairData.token0Value}
-                                        onChange={(e) => setPairData(prev => ({ ...prev, token0Value: e.target.value }))}
+                                        onChange={(e) => {
+                                            setPairData(prev => ({ ...prev, token0Value: e.target.value }));
+                                            isUserInput.current = true
+                                            setLastChanged("token0")
+                                        }}
                                     />
                                 </div>
 
@@ -160,7 +244,11 @@ function CreatePosition() {
                                         placeholder="Amount Token 1"
                                         className='w-full rounded-lg px-4 py-3 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600'
                                         value={pairData.token1Value}
-                                        onChange={(e) => setPairData(prev => ({ ...prev, token1Value: e.target.value }))}
+                                        onChange={(e) => {
+                                            setPairData(prev => ({ ...prev, token1Value: e.target.value }));
+                                            isUserInput.current = true
+                                            setLastChanged("token1")
+                                        }}
                                     />
                                 </div>
                             </div>

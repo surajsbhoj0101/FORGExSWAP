@@ -3,6 +3,7 @@ import { gql, request } from 'graphql-request';
 import { formatUnits } from 'ethers';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { custom } from 'viem';
 
 const syncQuery = gql`
   query LatestSync($pair: Bytes!) { 
@@ -25,32 +26,41 @@ function TradePriceShow() {
   const navigate = useNavigate();
   const [pairAddresses, setPairAddresses] = useState([]);
   const [pairPrices, setPairPrices] = useState([]);
+  const [isInvert, setIsInvert] = useState(false);
 
   function sortTokens(tokenA, tokenB) {
     const [addressA, addressB] = [tokenA.toLowerCase(), tokenB.toLowerCase()];
     return addressA < addressB ? [tokenA, tokenB] : [tokenB, tokenA];
   }
 
-  async function getResult(pairName, address, customTokenImage) {
+
+  async function getResult(customToken, secondaryTokenAddress, pairName, address, customTokenImage, customTokenName, secondaryTokenName, customTokenTotalSupply, secondaryTokenTotalSupply) {
     try {
-      console.log("Fetching ....")
+      console.log("Fetching ....");
       const result = await request(url, syncQuery, { pair: address }, headers);
-      
-      const price = result?.candles[0]?.close;
-     
-      console.log(price)
+
+      const [token0, token1] = sortTokens(customToken, secondaryTokenAddress);
+      const isInverted = customToken.toLowerCase() !== token0.toLowerCase(); // customToken is token1 => price inverted
+
+      let price = parseFloat(result?.candles[0]?.close ?? 0);
+      if (price === 0) return null;
+
+      if (isInverted) price = 1 / price;
 
       return {
         pairAddress: address,
         customTokenImage: `https://scarlet-naval-lizard-255.mypinata.cloud/ipfs/${customTokenImage}`,
         name: pairName,
+        secondaryTokenName,
         price,
+        marketCap: customTokenTotalSupply * price
       };
     } catch (error) {
       console.error(error);
       return null;
     }
   }
+
 
   useEffect(() => {
     async function fetchPairs() {
@@ -73,11 +83,15 @@ function TradePriceShow() {
           pairName,
           pairAddress,
           customToken,
-          fswapAddress,
-          customTokenImage
+          secondaryTokenAddress,
+          customTokenTotalSupply,
+          customTokenName,
+          secondaryTokenName,
+          customTokenImage,
+          secondaryTokenTotalSupply
         } = pairAddresses[i];
 
-        const data = await getResult(pairName, pairAddress, customTokenImage);
+        const data = await getResult(customToken, secondaryTokenAddress, pairName, pairAddress, customTokenImage, customTokenName, secondaryTokenName, customTokenTotalSupply, secondaryTokenTotalSupply);
         if (data) results.push(data);
       }
       setPairPrices(results);
@@ -127,9 +141,9 @@ function TradePriceShow() {
                       <span className="text-sm font-medium text-gray-900 dark:text-white">{item.name}</span>
                     </td>
                     <td className="px-6 py-4 text-sm text-green-600 dark:text-green-400">
-                      {item.price.toLocaleString(undefined, { maximumFractionDigits: 6 })} FSWAP
+                      {item.price.toLocaleString(undefined, { maximumFractionDigits: 6 })} {item.secondaryTokenName}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">-</td>
+                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{Number(item.marketCap).toFixed(2)}</td>
                     <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">-</td>
                   </tr>
                 ))
