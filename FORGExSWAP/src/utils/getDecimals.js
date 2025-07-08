@@ -3,7 +3,7 @@ import IUniswapV2Factory from "@uniswap/v2-core/build/IUniswapV2Factory.json";
 import IUniswapV2Pair from "@uniswap/v2-core/build/IUniswapV2Pair.json";
 import IERC20 from "@openzeppelin/contracts/build/contracts/ERC20.json";
 
-const provider = new JsonRpcProvider(import.meta.env.VITE_API_URL || "https://sepolia.infura.io/v3/c2e1c563b7f64ab78b463601b03a9bdc");
+const provider = new JsonRpcProvider(import.meta.env.VITE_API_PROVIDER);
 const factoryAddress = "0xF62c03E08ada871A0bEb309762E260a7a6a880E6";
 const factoryContract = new Contract(factoryAddress, IUniswapV2Factory.abi, provider);
 

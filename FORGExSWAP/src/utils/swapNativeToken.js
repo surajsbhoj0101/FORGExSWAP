@@ -3,7 +3,7 @@ import IUniswapV2Router02 from "@uniswap/v2-periphery/build/IUniswapV2Router02.j
 import { ZeroAddress } from "ethers";
 import { WETH_ABI } from '../data/wrapper_abi.js'
 import { swapTokens } from "./swapTokens";
-import { checkSwapPairExists } from "./swapDataFetch";
+import { checkPairExists } from "./fetchPairData.js";
 
 const routerAddress = '0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3';
 
@@ -20,7 +20,7 @@ export async function swapNativeTokens({
    
     const weth = new Contract(wethAddr, WETH_ABI, signer);
    
-    const check = await checkSwapPairExists(tokenInAddress, tokenOutAddress);
+    const check = await checkPairExists(tokenInAddress, tokenOutAddress);
     if (!check.exists) {
         throw new Error("Pair doesn't exist");
     }

@@ -6,7 +6,7 @@ import IUniswapV2Factory from "@uniswap/v2-core/build/IUniswapV2Factory.json";
 
 const routerAddress = "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3";
 
-export async function addLiquidity(token0Address, token1Address, token0Amount, token1Amount, signer, toAddress) {
+export async function addLiquidity(token0Address, token1Address, token0Amount, token1Amount, signer, toAddress, isTokenCreation) {
     const token0Contract = new Contract(token0Address, IERC20.abi, signer);
     const token1Contract = new Contract(token1Address, IERC20.abi, signer);
 
@@ -15,9 +15,10 @@ export async function addLiquidity(token0Address, token1Address, token0Amount, t
         token1Contract.decimals(),
     ]);
     const token0Parsed = parseUnits(token0Amount, decimals0); // bigint
-    const token1Parsed = parseUnits(token1Amount, decimals1);             // bigint
+    const token1Parsed = parseUnits(token1Amount, decimals1); // bigint
 
-    const token0Value = token0Parsed * 9n / 10n;
+
+    const token0Value = isTokenCreation ? token0Parsed * 9n / 10n : token0Parsed;
     const token1Value = token1Parsed;
 
     const minToken0 = token0Value * 98n / 100n;

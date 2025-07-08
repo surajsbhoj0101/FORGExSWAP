@@ -3,7 +3,7 @@ import IERC20 from "@openzeppelin/contracts/build/contracts/ERC20.json";
 import { Contract, JsonRpcProvider, ZeroAddress, formatUnits, formatEther } from 'ethers';
 import { zeroAddress } from 'viem';
 
-const provider = new JsonRpcProvider(import.meta.env.VITE_API_URL || "https://sepolia.infura.io/v3/c2e1c563b7f64ab78b463601b03a9bdc");
+const provider = new JsonRpcProvider(import.meta.env.VITE_API_PROVIDER );
 
 export async function getAmountHold(address,tokenAddress) {
     if (tokenAddress === '') tokenAddress = null

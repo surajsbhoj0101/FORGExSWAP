@@ -12,9 +12,7 @@ import SwapPage from "./pages/SwapPage.jsx";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import CreateToken from "./pages/createToken.jsx";
 import TradePage from "./pages/trade/tradePair/tradePage.jsx";
-import PortfolioPage from "./pages/portfolioPage.jsx";
-import LiquidityPage from "./pages/liquidity/liquidityPage.jsx";
-import CreatePosition from "./pages/liquidity/liquidityHandle/createPosition.jsx";
+import LiquidityPage from "./pages/liquidityPage.jsx";
 // Create the client
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,31 +75,11 @@ const router = createBrowserRouter([
     )
   },
   {
-    path: "/portfolio",
-    element: (
-      <>
-        <Navbar />
-        <PortfolioPage />
-        <Footer />
-      </>
-    )
-
-  },
-  {
     path: "/liquidity",
     element: (
       <>
         <Navbar />
         <LiquidityPage />
-        <Footer />
-      </>
-    )
-  }, {
-    path: "/liquidity/createPostion",
-    element: (
-      <>
-        <Navbar />
-        <CreatePosition />
         <Footer />
       </>
     )

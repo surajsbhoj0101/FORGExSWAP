@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import TradeChart from '../../../components/tradeChart';
+import TradeChart from '../../../components/TradeChart';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useWalletClient } from 'wagmi';
 import { getAmountHold } from '../../../utils/fetchAmountHold';
-import { FetchSwapData } from '../../../utils/swapDataFetch';
+import { FetchPairData } from '../../../utils/fetchPairData';
 import { swapTokens } from '../../../utils/swapTokens';
 import { toast } from "react-toastify";
 import { gql, request } from 'graphql-request';
@@ -85,7 +85,7 @@ function TradePage() {
       }
       setFetchingQuotes(true)
       try {
-        const result = await FetchSwapData(Data?.secondaryTokenAddress, tradeInfo?.amountSecondaryToken, Data?.pairAddress)
+        const result = await FetchPairData(Data?.secondaryTokenAddress, tradeInfo?.amountSecondaryToken, Data?.pairAddress)
         setTradeInfo(prev => ({
           ...prev,
           amountSecondaryTokenTo: result?.amountOut || "0"
@@ -110,7 +110,7 @@ function TradePage() {
       }
       setFetchingQuotes(true)
       try {
-        const result = await FetchSwapData(Data?.customToken, tradeInfo?.amountCustomToken, Data?.pairAddress)
+        const result = await FetchPairData(Data?.customToken, tradeInfo?.amountCustomToken, Data?.pairAddress)
         setTradeInfo(prev => ({
           ...prev,
           amountCustomTokenTo: result?.amountOut || "0"
@@ -281,11 +281,11 @@ function TradePage() {
             <ToastContainer />
             <div>
               <div className="text-2xl font-bold">{Data?.customTokenName} / {Data?.secondaryTokenName}</div>
-              <div className="text-gray-500 text-sm">{pairAddress}</div>
+              <div className="text-gray-500 text-sm">{Data?.customToken}</div>
             </div>
             <div className="ml-auto text-right">
               <div className="text-sm">Price</div>
-              <div className="text-green-400 text-lg font-semibold">{Number(price).toFixed(4)} {Data?.secondaryTokenName}</div>
+              <div className="text-green-400 text-lg font-semibold">{Number(price).toFixed(6)} {Data?.secondaryTokenName}</div>
 
             </div>
           </div>

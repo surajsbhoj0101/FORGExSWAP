@@ -142,7 +142,7 @@ function TokenCreate() {
 
             toast.success("Token created successfully. Adding liquidity...");
 
-            const liqAdd = await addLiquidity(customToken.address, secondaryTokenAddress, tokenSupply, secondaryTokenValueForInitialLiquidity, signer, address);
+            const liqAdd = await addLiquidity(customToken.address, secondaryTokenAddress, tokenSupply, secondaryTokenValueForInitialLiquidity, signer, address,true);
             if (!liqAdd.isTxSuccessful) {
                 toast.error("Liquidity addition failed");
                 return;
@@ -157,20 +157,20 @@ function TokenCreate() {
                 }
             });
 
-            const cid = resImage.data.success ? resImage.data.cid : "bafybeigztycdf3f3zc3cugrt7fivb2rmlph7u2blcmjgeiwbw3tu565ptm";
+            const cid =  resImage.data.cid ;
 
             const res = await axios.post("http://localhost:3002/tokenData", {
-                pairName: `${tokenSymbol}/${secondaryTokenName}`,
+                pairName: `${tokenSymbol}/${secondaryTokenSymbol}`,
                 pairAddress: liqAdd.pairAddress,
                 customTokenName: tokenName,
-                secondaryTokenName: secondaryTokenSymbol,
+                secondaryTokenName: secondaryTokenName,
                 customToken: customToken.address,
                 secondaryTokenAddress: secondaryTokenAddress,
                 customTokenTotalSupply: tokenSupply,
                 secondaryTokenTotalSupply: secondaryTokenTotalSupply,
                 customTokenForLiquidity: (tokenSupply * 9) / 10,
                 secondaryTokenSupplyForLiquidity: secondaryTokenValueForInitialLiquidity,
-                cutomTokenImage: cid
+                customTokenImage: cid
             });
 
             if (!res.data.success) {
@@ -285,7 +285,7 @@ function TokenCreate() {
                                     accept="image/*"
                                     name="image"
                                     onChange={handleTokenData}
-                                    className="text-sm cursor-pointer bg-white dark:bg-gray-700 border border-dashed rounded-lg px-3 py-2"
+                                    className="text-sm cursor-pointer xs:w-full w-30 bg-white dark:bg-gray-700 border border-dashed rounded-lg px-3 py-2"
                                 />
                             )}
                         </div>

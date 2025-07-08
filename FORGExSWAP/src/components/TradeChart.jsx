@@ -7,7 +7,7 @@ const syncQuery = gql`
   query LatestCandleSync($pair: Bytes!) { 
     candles(first: 1000, orderBy: timestamp, orderDirection: asc, where: {
       pair: $pair,
-      interval: "1d"
+      interval: "1h"
     }) {
       id
       timestamp
@@ -78,7 +78,15 @@ const TradeChart = ({ pairAddress, tokenA, tokenB }) => {
                         chart: { type: "candlestick", height: 350 },
                         xaxis: { type: "datetime" },
                         yaxis: { tooltip: { enabled: true } },
-                        title: { text: "Price Candles", align: "left" }
+                        title: { text: "Price Candles", align: "left" },
+                        plotOptions:{
+                            candlestick:{
+                                colors:{
+                                    upward:'#00ff00',
+                                    downward:'#ff0000'
+                                }
+                            }
+                        }
                     }}
                     series={series}
                     type="candlestick"
