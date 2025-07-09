@@ -23,6 +23,7 @@ function TokenCreate() {
     const { data: walletClient } = useWalletClient();
     const { isConnected, address } = useAccount();
     const [isSecondaryTokenExists, setisSecondaryTokenExists] = useState(true)
+    const [searchTerm, setSearchTerm] = useState()
 
     useEffect(() => {
         setAddresses(addressFeed);
@@ -94,7 +95,7 @@ function TokenCreate() {
                 setisSecondaryTokenExists(exists.isExist);
                 if (exists.isExist && isConnected) {
 
-                    const result = await getAmountHold(address,tokenAddress)
+                    const result = await getAmountHold(address, tokenAddress)
                     setUserSecondaryTokenBalance(result)
                 }
 
@@ -207,6 +208,21 @@ function TokenCreate() {
         }
     }
 
+    useEffect(() => {
+        if (isTokenSelection) setSearchTerm('');
+    }, [isTokenSelection]);
+
+
+    const filteredItems = !searchTerm
+        ? addresses
+        : addresses.filter(item =>
+            item.tokenName.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
+            item.tokenSymbol.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
+            item.tokenAddress.toLowerCase().startsWith(searchTerm.toLowerCase())
+        );
+
+
+
     return (
         <div className="w-full relative min-h-96 max-w-lg mx-auto bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 space-y-8">
             <ToastContainer />
@@ -241,6 +257,7 @@ function TokenCreate() {
                             type="number"
                             className="w-full px-5 py-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
                             required
+                            min='1'
                         />
 
                         {/* Secondary Token Picker */}
@@ -269,8 +286,9 @@ function TokenCreate() {
                             <p className='text-red-500'>Token Does not exists</p>
                         )}
                         <div>
-                            <p className='text-gray-600 dark:text-white'>Balance - {userSecondaryTokenBalance } </p>
+                            <p className='text-gray-600 dark:text-white'>Balance - {userSecondaryTokenBalance} </p>
                             <input
+                                min='1'
                                 name="secondaryTokenValueForInitialLiquidity"
                                 value={tokenData.secondaryTokenValueForInitialLiquidity}
                                 onChange={handleTokenData}
@@ -323,6 +341,8 @@ function TokenCreate() {
                     <div className="flex items-center space-x-4">
                         <input
                             type="text"
+                            onChange={e => setSearchTerm(e.target.value)}
+                            value={searchTerm}
                             placeholder="Search Tokens"
                             className="w-full px-4 py-3 rounded-xl text-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-300 dark:border-gray-600 focus:outline-none"
                         />
@@ -331,23 +351,29 @@ function TokenCreate() {
                         </button>
                     </div>
 
-                    {addresses.map((item, index) => (
-                        <div
-                            key={index}
-                            onClick={() => handleTokenSelect(item.tokenAddress)}
-                            className="flex items-center gap-5 cursor-pointer px-4 py-3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition"
-                        >
-                            <img src={item.tokenImage} alt={item.tokenSymbol} className="w-10 h-10 rounded-full border" />
-                            <div>
-                                <div className="text-lg font-medium text-gray-800 dark:text-white">
-                                    {item.tokenName} ({item.tokenSymbol})
-                                </div>
-                                <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
-                                    {item.tokenAddress.slice(0, 6)}...{item.tokenAddress.slice(-4)}
+                    {filteredItems.length > 0 ? (
+                        filteredItems.map((item, index) => (
+                            <div
+                                key={index}
+                                onClick={() => handleTokenSelect(item.tokenAddress)}
+                                className="flex items-center gap-5 cursor-pointer px-4 py-3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                            >
+                                <img src={item.tokenImage} alt={item.tokenSymbol} className="w-10 h-10 rounded-full border" />
+                                <div>
+                                    <div className="text-lg font-medium text-gray-800 dark:text-white">
+                                        {item.tokenName} ({item.tokenSymbol})
+                                    </div>
+                                    <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
+                                        {item.tokenAddress.slice(0, 6)}...{item.tokenAddress.slice(-4)}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        <p className="text-gray-500 dark:text-gray-400 text-center">No tokens found.</p>
+                    )}
+
+
 
                     <div className="flex gap-4 items-center pt-4">
                         <input
@@ -364,8 +390,11 @@ function TokenCreate() {
                         </button>
                     </div>
                 </div>
-            )}
-        </div>
+            )
+            }
+
+            { }
+        </div >
 
 
     );

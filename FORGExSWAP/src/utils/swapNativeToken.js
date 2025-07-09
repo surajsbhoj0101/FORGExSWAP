@@ -17,9 +17,9 @@ export async function swapNativeTokens({
 
     const wethAddr = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14";
     const router = new Contract(routerAddress, IUniswapV2Router02.abi, signer);
-   
+
     const weth = new Contract(wethAddr, WETH_ABI, signer);
-   
+
     const check = await checkPairExists(tokenInAddress, tokenOutAddress);
     if (!check.exists) {
         throw new Error("Pair doesn't exist");
@@ -29,14 +29,14 @@ export async function swapNativeTokens({
     if (tokenInAddress === ZeroAddress && tokenOutAddress === wethAddr) {
         const tx = await weth.deposit({ value: parseEther(amountIn) });
         await tx.wait();
-        return { isTxSuccessful: !!tx.hash };
+        return { hash: tx.hash, isTxSuccessful: !!tx.hash };
     }
 
     // WETH -> Native ETH 
     if (tokenInAddress === wethAddr && tokenOutAddress === ZeroAddress) {
         const tx = await weth.withdraw(parseEther(amountIn));
         await tx.wait();
-        return { isTxSuccessful: !!tx.hash };
+        return { hash: tx.hash, isTxSuccessful: !!tx.hash };
     }
 
     // Native ETH -> Other ERC20 
@@ -50,9 +50,11 @@ export async function swapNativeTokens({
     if (tokenOutAddress === ZeroAddress) {
         const result = await swapTokens({ amountIn, tokenInAddress, tokenOutAddress: wethAddr, signer });
         if (!result.isTxSuccessful) throw new Error("Swap to WETH failed");
-        const tx = await weth.withdraw( result.amountOut);
+        const tx = await weth.withdraw(result.amountOut);
         await tx.wait();
-        return { isTxSuccessful: !!tx.hash };
+        return {
+            hash: tx.hash, isTxSuccessful: !!tx.hash
+        };
     }
 
 }

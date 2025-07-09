@@ -15,7 +15,7 @@ import { removeLiquidity } from '../utils/removeLiquidity';
 function RemoveLiquidity() {
   const { data: walletClient } = useWalletClient();
   const { isConnected, address } = useAccount();
-
+  const [searchTerm, setSearchTerm] = useState()
   const [availableToken, setAvailableToken] = useState();
   const [addresses, setAddresses] = useState([]);
   const [activeField, setActiveField] = useState('pair0');
@@ -155,12 +155,26 @@ function RemoveLiquidity() {
         token0Value: "",
         token1Address: "",
         token1Value: "",
-        liquidityTokens:""
+        liquidityTokens: ""
       }))
       setAvailableToken("")
       setIsRemovingLiquidity(false);
     }
   }
+
+  useEffect(() => {
+    if (isTokenSelection) setSearchTerm('');
+  }, [isTokenSelection]);
+
+
+  const filteredItems = !searchTerm
+    ? addresses
+    : addresses.filter(item =>
+      item.tokenName.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
+      item.tokenSymbol.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
+      item.tokenAddress.toLowerCase().startsWith(searchTerm.toLowerCase())
+    );
+
   return (
     <div className="w-full relative min-h-96 max-w-md bg-white dark:bg-gray-900 rounded-2xl  p-6">
       <ToastContainer />
@@ -252,6 +266,7 @@ function RemoveLiquidity() {
                 </div>
                 <input
                   type="text"
+                  min='0'
                   placeholder={'Amount LiquidityTokens'}
                   className='w-full rounded-lg px-4 py-3 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600'
                   value={pairData["liquidityTokens"]}
@@ -344,10 +359,12 @@ function RemoveLiquidity() {
           </form>)
 
       ) : (
-        <div className="absolute top-0 left-0 z-30 w-full h-full bg-white dark:bg-gray-800 p-4 overflow-y-auto rounded-md">
+        <div className="absolute  top-0 left-0 z-30 w-full h-full bg-white dark:bg-gray-800 p-4 overflow-y-auto rounded-md">
           <div className="flex items-center space-x-3 mb-4">
             <input
               type="text"
+              onChange={e => setSearchTerm(e.target.value)}
+              value={searchTerm}
               placeholder="Search Tokens"
               className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-2 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100"
             />
@@ -356,23 +373,28 @@ function RemoveLiquidity() {
             </button>
           </div>
 
-          {addresses.map((item, index) => (
-            <div
-              key={index}
-              onClick={() => handleTokenSelect(item.tokenAddress)}
-              className="flex items-center gap-4 cursor-pointer p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
-            >
-              <img src={item.tokenImage} alt={item.tokenSymbol} className="w-6 h-6 rounded-full" />
-              <div>
-                <div className="font-medium text-gray-800 dark:text-white">
-                  {item.tokenName} ({item.tokenSymbol})
-                </div>
-                <div className="text-xs text-gray-500">
-                  {item.tokenAddress.slice(0, 6)}...{item.tokenAddress.slice(-4)}
+          {filteredItems.length > 0 ?
+            filteredItems.map((item, index) => (
+              <div
+                key={index}
+                onClick={() => handleTokenSelect(item.tokenAddress)}
+                className="flex items-center gap-4 cursor-pointer p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                <img src={item.tokenImage} alt={item.tokenSymbol} className="w-6 h-6 rounded-full" />
+                <div>
+                  <div className="font-medium text-gray-800 dark:text-white">
+                    {item.tokenName} ({item.tokenSymbol})
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {item.tokenAddress.slice(0, 6)}...{item.tokenAddress.slice(-4)}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )) : (
+              <p className="text-gray-500 dark:text-gray-400 text-center">No tokens found.</p>
+            )}
+
+          
 
           <div className='flex space-x-6 justify-around items-center mt-4'>
             <input
