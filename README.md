@@ -1,13 +1,54 @@
-# Sample Hardhat Project
+# 🔁 ForgeXSwap
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+**ForgeXSwap** is a decentralized exchange (DEX) built on the Sepolia Testnet that allows users to:
+- Create ERC20 tokens
+- Swap tokens
+- Trade with a live chart view
+- Add/remove liquidity to any token pair
 
-Try running some of the following tasks:
+This project combines powerful blockchain tools with modern UI for an intuitive and secure trading experience.
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
-```
+---
+
+## 🚀 Features
+
+- 🔨 **ERC20 Token Creation**  
+  Easily deploy custom tokens with a single click.
+
+- 🔁 **Token Swaps**  
+  Swap between any ERC20 token pairs instantly.
+
+- 📈 **Trading View**  
+  View real-time trade charts powered by subgraphs.
+
+- 💧 **Liquidity Pools**  
+  Add/remove liquidity and track pool reserves.
+
+- 🔍 **Token Search & Preview**  
+  Search tokens with logos, symbols, and metadata before interacting.
+
+---
+
+## 🛠 Tech Stack
+
+| Frontend        | Backend / Smart Contracts | Infrastructure       |
+|-----------------|---------------------------|-----------------------|
+| React + TailwindCSS | Hardhat (Solidity)            | Subgraph (Graph Protocol) |
+| Wagmi + RainbowKit | Ethers.js                   | Sepolia Testnet       |
+| ApexCharts       | OpenZeppelin Contracts       | IPFS for logos (optional) |
+
+---
+
+## 📸 UI Preview
+
+> *Add screenshots here of your UI (home, swap, token creation, etc.)*
+
+---
+
+## 🧪 Run Locally
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/your-username/ForgeXSwap.git
+cd ForgeXSwap
