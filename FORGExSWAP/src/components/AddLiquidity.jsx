@@ -10,6 +10,7 @@ import { checkPairExists, FetchPairData } from '../utils/fetchPairData';
 import { addLiquidity } from '../utils/addLiquidity';
 import { checkErcExists } from '../utils/checkTokenExists';
 import ToastContainer from './toastContainer';
+import { set } from 'mongoose';
 
 function AddLiquidity() {
     const { data: walletClient } = useWalletClient();
@@ -57,6 +58,10 @@ function AddLiquidity() {
 
     useEffect(() => {
         async function fetchBalance() {
+            setAvailableToken(prev=>({
+                token0:'',
+                token1:''
+            }))
             if (isConnected && (pairData.token0Address || pairData.token1Address) && isTokenExists) {
                 const token0 = await getAmountHold(address, pairData.token0Address);
                 const token1 = await getAmountHold(address, pairData.token1Address);

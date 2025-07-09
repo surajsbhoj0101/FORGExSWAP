@@ -27,9 +27,8 @@ const syncQuery = gql`
   }
 `;
 
-const url = 'https://api.studio.thegraph.com/query/113184/sepolia-v-2-price-feed/version/latest';
-const headers = { Authorization: `Bearer ff06a2cbebb8a0e457b1904571cb9b50` };
-
+const url = import.meta.env.VITE_GRAPH_URL;
+const headers = { Authorization: `Bearer ${import.meta.env.VITE_GRAPH_KEY}` };
 function TradePage() {
   const [price, setPrice] = useState();
   const [isFetchingQuotes, setFetchingQuotes] = useState(false);
@@ -135,7 +134,7 @@ function TradePage() {
         const res = await axios.get(`http://localhost:3002/fetchPair/${pairAddress}`);
 
         setData(res.data);
-    
+
         const [token0, token1] = sortTokens(res.data.customToken, res.data.secondaryTokenAddress);
         const isInverted = res.data?.customToken.toLowerCase() !== token0.toLowerCase();
         const result = await request(url, syncQuery, { pair: res.data.pairAddress }, headers);
@@ -269,10 +268,11 @@ function TradePage() {
   if (isNotFound) return <div className="text-center text-red-600 py-8">Pair not found.</div>;
 
   return (
-    <div className="dark:bg-gray-950 dark:text-white min-h-screen p-6">
-      <div className="flex flex-wrap gap-6">
-        <div className="flex-1 min-w-[60%] bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow">
-          <div className="flex items-center gap-4 border-b pb-4 mb-4 border-gray-300 dark:border-gray-600">
+    <div className="dark:bg-gray-950 dark:text-white min-h-screen p-4 sm:p-6">
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Trade Pair & Chart */}
+        <div className="flex-1 bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow">
+          <div className="flex flex-wrap gap-4 items-center border-b pb-4 mb-4 border-gray-300 dark:border-gray-600">
             <img
               className="w-16 h-16 rounded-full"
               src={`https://scarlet-naval-lizard-255.mypinata.cloud/ipfs/${Data?.customTokenImage}`}
@@ -280,19 +280,35 @@ function TradePage() {
             />
             <ToastContainer />
             <div>
-              <div className="text-2xl font-bold">{Data?.customTokenName} / {Data?.secondaryTokenName}</div>
-              <div className="text-gray-500 text-sm">{Data?.customToken}</div>
+              <div className="text-xl sm:text-2xl font-bold">{Data?.customTokenName} / {Data?.secondaryTokenName}</div>
+              <div className="text-gray-500 text-xs">{Data?.customToken}</div>
             </div>
             <div className="ml-auto text-right">
               <div className="text-sm">Price</div>
-              <div className="text-green-400 text-lg font-semibold">{Number(price).toFixed(6)} {Data?.secondaryTokenName}</div>
-
+              <div className="text-green-400 text-lg font-semibold">
+                {Number(price).toFixed(6)} {Data?.secondaryTokenName}
+              </div>
             </div>
           </div>
-          <TradeChart pairAddress={Data?.pairAddress} tokenA={Data?.customToken} tokenB={Data?.secondaryTokenAddress} />
+
+          {/* More Trade Pair Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mb-4">
+            <div className="bg-gray-200 dark:bg-gray-800 p-3 rounded">
+              <div className="text-gray-600 dark:text-gray-400">Pool Address</div>
+              <div className="break-all font-mono text-xs">{Data?.pairAddress}</div>
+            </div>
+            
+          </div>
+
+          <TradeChart
+            pairAddress={Data?.pairAddress}
+            tokenA={Data?.customToken}
+            tokenB={Data?.secondaryTokenAddress}
+          />
         </div>
 
-        <div className="flex-1 min-w-[30%] bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow">
+        {/* Trade Box */}
+        <div className="w-full lg:w-[35%] bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow">
           <div className="flex justify-center gap-4 mb-6">
             <button
               className={`px-6 py-2 rounded-md font-semibold ${isTradeBuy ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'}`}
@@ -319,14 +335,14 @@ function TradePage() {
                   onChange={handleBuyChange}
                   className="w-full mt-1 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white"
                 />
-                <div className="text-xs text-gray-500">Available:  {availableSecondaryToken || "0"}</div>
+                <div className="text-xs text-gray-500">Available: {availableSecondaryToken || "0"}</div>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between flex-wrap gap-2">
                 {[25, 50, 75, 100].map(percent => (
                   <button
-                    type="button"
                     key={percent}
+                    type="button"
                     onClick={() => handlePercentClick('amountSecondaryToken', availableSecondaryToken, percent)}
                     className="px-3 py-1 border rounded-md text-sm hover:bg-green-100 dark:hover:bg-green-800"
                   >
@@ -339,20 +355,20 @@ function TradePage() {
                 You get: <span className="font-semibold">{tradeInfo.amountSecondaryTokenTo || '0'}</span>
               </div>
 
-
               {isConnected ? (
-                isFetchingQuotes ? (<div className="w-full space-x-4 dark:bg-gray-600 flex items-center justify-center py-3 rounded-lg bg-gray-400 text-white font-semibold transition duration-200">
-                  <div>Fetching quotes</div>
-                  <div className="border-dashed rounded-full h-3 w-3 p-2 animate-spin border-2 border-blue-500"></div>
-                </div>) : (<button
-                  type="submit"
-                  className="bg-green-500 hover:bg-green-600 text-white py-2 rounded-md"
-                >
-                  {isBuying ? "Buying please wait ..." : "Buy"}
-                </button>)
-
-              ) : (<div className='flex justify-center items-center'><ConnectButton /></div>)}
-
+                isFetchingQuotes ? (
+                  <div className="flex items-center justify-center py-3 rounded-lg bg-gray-400 dark:bg-gray-600 text-white font-semibold transition duration-200">
+                    <div>Fetching quotes</div>
+                    <div className="ml-3 border-dashed rounded-full h-3 w-3 p-2 animate-spin border-2 border-blue-500"></div>
+                  </div>
+                ) : (
+                  <button type="submit" className="bg-green-500 hover:bg-green-600 text-white py-2 rounded-md">
+                    {isBuying ? "Buying please wait ..." : "Buy"}
+                  </button>
+                )
+              ) : (
+                <div className="flex justify-center items-center"><ConnectButton /></div>
+              )}
             </form>
           ) : (
             <form className="flex flex-col gap-4" onSubmit={handleSellCustomToken}>
@@ -368,11 +384,11 @@ function TradePage() {
                 <div className="text-xs text-gray-500">Available: {availableCustomToken}</div>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between flex-wrap gap-2">
                 {[25, 50, 75, 100].map(percent => (
                   <button
-                    type="button"
                     key={percent}
+                    type="button"
                     onClick={() => handlePercentClick('amountCustomToken', availableCustomToken, percent)}
                     className="px-3 py-1 border rounded-md text-sm hover:bg-red-100 dark:hover:bg-red-800"
                   >
@@ -385,22 +401,20 @@ function TradePage() {
                 You get: <span className="font-semibold">{tradeInfo.amountCustomTokenTo || '0'}</span>
               </div>
 
-
               {isConnected ? (
-                isFetchingQuotes ? (<div className="w-full space-x-4 dark:bg-gray-600 flex items-center justify-center py-3 rounded-lg bg-gray-400 text-white font-semibold transition duration-200">
-                  <div>Fetching quotes</div>
-                  <div className="border-dashed rounded-full h-3 w-3 p-2 animate-spin border-2 border-blue-500"></div>
-                </div>) : (<button
-                  type="submit"
-                  className="bg-red-500 hover:bg-red-600 text-white py-2 rounded-md"
-                >
-                  {isSelling ? "Selling tokens Please wait" : "Sell"}
-                </button>)
-
-              ) : (<div className='flex items-center justify-center'><ConnectButton /></div>)}
-
-
-
+                isFetchingQuotes ? (
+                  <div className="flex items-center justify-center py-3 rounded-lg bg-gray-400 dark:bg-gray-600 text-white font-semibold transition duration-200">
+                    <div>Fetching quotes</div>
+                    <div className="ml-3 border-dashed rounded-full h-3 w-3 p-2 animate-spin border-2 border-blue-500"></div>
+                  </div>
+                ) : (
+                  <button type="submit" className="bg-red-500 hover:bg-red-600 text-white py-2 rounded-md">
+                    {isSelling ? "Selling tokens Please wait" : "Sell"}
+                  </button>
+                )
+              ) : (
+                <div className="flex items-center justify-center"><ConnectButton /></div>
+              )}
             </form>
           )}
         </div>

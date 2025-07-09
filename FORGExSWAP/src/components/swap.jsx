@@ -193,7 +193,6 @@ function Swap() {
       try {
         let result0 = { isExist: true };
         let result1 = { isExist: true };
-
         // Only check ERC existence if not native token (ZeroAddress)
         if (valueData.sellAddress !== ZeroAddress) {
           result0 = await checkErcExists(valueData.sellAddress);
@@ -394,7 +393,7 @@ function Swap() {
               <div className="flex  text-gray-600 dark:text-gray-300 justify-between text-sm font-medium">
                 <p>You sell</p>
                 <div className="flex space-x-1">
-                  <p>Balance -{valueData?.sellAddress === ZeroAddress ? parseFloat(formatEther(nativeBalance?.data?.value)).toFixed(2) : availableToken.sellToken || 0}</p>
+                  <p>Balance - {valueData?.sellAddress === ZeroAddress ? isConnected? parseFloat(formatEther(nativeBalance?.data?.value)).toFixed(2):'0' : availableToken.sellToken || 0}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -453,7 +452,7 @@ function Swap() {
 
 
                 <div className="flex space-x-1">
-                    <p>Balance -{valueData?.buyAddress === ZeroAddress ? parseFloat(formatEther(nativeBalance?.data?.value)).toFixed(2) : availableToken.buyToken || 0}</p>
+                  <p>Balance - {valueData?.buyAddress === ZeroAddress ? isConnected? parseFloat(formatEther(nativeBalance?.data?.value)).toFixed(2):'0' : availableToken.buyToken || 0}</p>
                 </div>
 
               </div>

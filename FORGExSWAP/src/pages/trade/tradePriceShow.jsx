@@ -19,8 +19,8 @@ const syncQuery = gql`
   }
 `;
 
-const url = 'https://api.studio.thegraph.com/query/113184/sepolia-v-2-price-feed/version/latest';
-const headers = { Authorization: `Bearer ff06a2cbebb8a0e457b1904571cb9b50` };
+const url = import.meta.env.VITE_GRAPH_URL;
+const headers = { Authorization: `Bearer ${import.meta.env.VITE_GRAPH_KEY}` };
 
 function TradePriceShow() {
   const navigate = useNavigate();

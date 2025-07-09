@@ -157,6 +157,7 @@ function Navbar() {
           </Link>
 
           <Link
+            onClick={closeSidebar}
             to="/liquidity"
             className="hover:text-violet-500 transition-colors duration-300"
           >

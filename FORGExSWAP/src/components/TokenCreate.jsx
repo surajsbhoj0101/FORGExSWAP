@@ -10,6 +10,8 @@ import { IoClose } from 'react-icons/io5';
 import { addressFeed } from '../data/positionAddressFeed';
 import { checkErcExists } from '../utils/checkTokenExists';
 import { ToastContainer } from 'react-toastify';
+import { getAmountHold } from '../utils/fetchAmountHold';
+
 
 function TokenCreate() {
     const [isCreatingToken, setIsCreatingToken] = useState(false);
@@ -25,7 +27,7 @@ function TokenCreate() {
     useEffect(() => {
         setAddresses(addressFeed);
     }, []);
-
+    const [userSecondaryTokenBalance, setUserSecondaryTokenBalance] = useState()
     const [tokenData, setTokenData] = useState({
         tokenName: "",
         tokenSymbol: "",
@@ -78,17 +80,24 @@ function TokenCreate() {
 
     useEffect(() => {
         async function checkIfSecondaryTokenExists() {
-            const address = tokenData?.secondaryTokenAddress;
+            const tokenAddress = tokenData?.secondaryTokenAddress;
 
-            if (!isHexadecimal(address) || address.length !== 42) {
+            if (!isHexadecimal(tokenAddress) || tokenAddress.length !== 42) {
                 console.error("Enter a valid address");
                 setisSecondaryTokenExists(false);
                 return;
             }
 
             try {
-                const exists = await checkErcExists(address);
+                const exists = await checkErcExists(tokenAddress);
+                setUserSecondaryTokenBalance('0')
                 setisSecondaryTokenExists(exists.isExist);
+                if (exists.isExist && isConnected) {
+
+                    const result = await getAmountHold(address,tokenAddress)
+                    setUserSecondaryTokenBalance(result)
+                }
+
                 setTokenData(prev => ({
                     ...prev,
                     secondaryTokenName: exists?.tokenName,
@@ -134,7 +143,7 @@ function TokenCreate() {
             const provider = new BrowserProvider(walletClient);
             const signer = await provider.getSigner();
 
-            const customToken = await handleTokenCreation(tokenName, tokenSymbol, tokenSupply, signer);
+            const customTokenResult = await handleTokenCreation(tokenName, tokenSymbol, tokenSupply, signer);
             if (!customToken.isTxSuccessful) {
                 toast.error("Token creation failed");
                 return;
@@ -142,7 +151,7 @@ function TokenCreate() {
 
             toast.success("Token created successfully. Adding liquidity...");
 
-            const liqAdd = await addLiquidity(customToken.address, secondaryTokenAddress, tokenSupply, secondaryTokenValueForInitialLiquidity, signer, address,true);
+            const liqAdd = await addLiquidity(customTokenResult.address, secondaryTokenAddress, tokenSupply, secondaryTokenValueForInitialLiquidity, signer, address, true);
             if (!liqAdd.isTxSuccessful) {
                 toast.error("Liquidity addition failed");
                 return;
@@ -157,7 +166,7 @@ function TokenCreate() {
                 }
             });
 
-            const cid =  resImage.data.cid ;
+            const cid = resImage.data.cid;
 
             const res = await axios.post("http://localhost:3002/tokenData", {
                 pairName: `${tokenSymbol}/${secondaryTokenSymbol}`,
@@ -259,16 +268,18 @@ function TokenCreate() {
                         {!isSecondaryTokenExists && (
                             <p className='text-red-500'>Token Does not exists</p>
                         )}
-
-                        <input
-                            name="secondaryTokenValueForInitialLiquidity"
-                            value={tokenData.secondaryTokenValueForInitialLiquidity}
-                            onChange={handleTokenData}
-                            placeholder="Secondary Token Amount"
-                            type="number"
-                            className="w-full px-5 py-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                            required
-                        />
+                        <div>
+                            <p className='text-gray-600 dark:text-white'>Balance - {userSecondaryTokenBalance } </p>
+                            <input
+                                name="secondaryTokenValueForInitialLiquidity"
+                                value={tokenData.secondaryTokenValueForInitialLiquidity}
+                                onChange={handleTokenData}
+                                placeholder="Secondary Token Amount"
+                                type="number"
+                                className="w-full px-5 py-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                                required
+                            />
+                        </div>
 
                         {/* Image Upload */}
                         <div className="flex items-center justify-between border-2 border-gray-300 dark:border-gray-600 rounded-xl p-5 bg-gray-50 dark:bg-gray-800">

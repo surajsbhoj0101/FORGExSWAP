@@ -8,12 +8,14 @@ import {
 } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";//Components and hooks like useAccount, useConnect, useBalance, etc. all rely on it to know which blockchain network and wallets to use
 import { mainnet, sepolia,monadTestnet } from "wagmi/chains";
+import { useMemo } from "react";
 
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 //QueryClient — creates an instance of React Query’s core client, which manages all your queries, caching, and data syncing.
 //QueryClientProvider — a React context provider that wraps your app and makes the QueryClient available to all components for using React Query features.
 import { useTheme } from "../contexts/ThemeContext";
 
+const queryClient = new QueryClient();
 const projectId = import.meta.env.PROJECT_ID;
 const config = getDefaultConfig({
   appName: "FORGExSWAP",
@@ -24,35 +26,36 @@ const config = getDefaultConfig({
 
 const AppProviders = ({ children }) => {
   const { isDarkMode } = useTheme();
-  const queryClient = new QueryClient();// It creates a new instance of React Query’s core manager called QueryClient and this query client keeps track of all your qurey, caching and automatic refetching.
+  const theme = useMemo(() => {
+    return isDarkMode
+      ? darkTheme({
+          accentColor: "#7b3fe4",
+          accentColorForeground: "white",
+          borderRadius: "small",
+          fontStack: "system",
+          overlayBlur: "small",
+        })
+      : lightTheme({
+          accentColor: "cyan",
+          accentColorForeground: "white",
+          borderRadius: "small",
+          fontStack: "system",
+          overlayBlur: "small",
+        });
+  }, [isDarkMode]);
+  // It creates a new instance of React Query’s core manager called QueryClient and this query client keeps track of all your qurey, caching and automatic refetching.
 
   return (
     <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
           chains={config.chains}
-          key={isDarkMode ? "dark" : "light"}  // The key guarantees a clean re-render when switching themes.
+           
           theme={
-            isDarkMode
-              ? darkTheme({
-                  accentColor: "#7b3fe4",
-                  accentColorForeground: "white",
-                  borderRadius: "small",
-                  fontStack: "system",
-                  overlayBlur: "small",
-                })
-              : lightTheme({
-                  accentColor: "cyan",
-                  accentColorForeground: "white",
-                  borderRadius: "small",
-                  fontStack: "system",
-                  overlayBlur: "small",
-                })
+            theme
           }
         >
           {children}
         </RainbowKitProvider>
-      </QueryClientProvider>
     </WagmiProvider>
   );
 };

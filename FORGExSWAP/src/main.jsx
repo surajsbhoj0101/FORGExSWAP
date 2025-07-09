@@ -13,7 +13,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import CreateToken from "./pages/createToken.jsx";
 import TradePage from "./pages/trade/tradePair/tradePage.jsx";
 import LiquidityPage from "./pages/liquidityPage.jsx";
-// Create the client
+import { useMemo } from "react";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -86,7 +87,7 @@ const router = createBrowserRouter([
   }
 ]);
 
-// ✅ Proper root render: wrap with QueryClientProvider
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
