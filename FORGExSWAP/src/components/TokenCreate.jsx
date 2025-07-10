@@ -24,7 +24,7 @@ function TokenCreate() {
     const { isConnected, address } = useAccount();
     const [isSecondaryTokenExists, setisSecondaryTokenExists] = useState(true)
     const [searchTerm, setSearchTerm] = useState()
-
+    const serverUrl = import.meta.env.VITE_SERVER_URL
     useEffect(() => {
         setAddresses(addressFeed);
     }, []);
@@ -161,7 +161,7 @@ function TokenCreate() {
             toast.success("Liquidity added. Uploading image...");
             const file = imageFile;
             formData.append('image', file);
-            const resImage = await axios.post('http://localhost:3002/upload', formData, {
+            const resImage = await axios.post(`${serverUrl}/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

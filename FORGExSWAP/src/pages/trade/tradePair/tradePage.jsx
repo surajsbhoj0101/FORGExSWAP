@@ -26,7 +26,7 @@ const syncQuery = gql`
   }
   }
 `;
-
+const serverUrl = import.meta.env.VITE_SERVER_URL
 const url = import.meta.env.VITE_GRAPH_URL;
 const headers = { Authorization: `Bearer ${import.meta.env.VITE_GRAPH_KEY}` };
 function TradePage() {
@@ -131,7 +131,7 @@ function TradePage() {
   useEffect(() => {
     async function fetchPairData() {
       try {
-        const res = await axios.get(`http://localhost:3002/fetchPair/${pairAddress}`);
+        const res = await axios.get(`${serverUrl}/fetchPair/${pairAddress}`);
 
         setData(res.data);
 

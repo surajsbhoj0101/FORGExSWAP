@@ -18,7 +18,7 @@ const syncQuery = gql`
   }
   }
 `;
-
+const serverUrl = import.meta.env.VITE_SERVER_URL
 const url = import.meta.env.VITE_GRAPH_URL;
 const headers = { Authorization: `Bearer ${import.meta.env.VITE_GRAPH_KEY}` };
 
@@ -65,7 +65,7 @@ function TradePriceShow() {
   useEffect(() => {
     async function fetchPairs() {
       try {
-        const res = await axios.get('http://localhost:3002/fetchAllToken');
+        const res = await axios.get(`${serverUrl}/fetchAllToken`);
         setPairAddresses(res.data);
       } catch (error) {
         console.log("An error occurred: ", error);
