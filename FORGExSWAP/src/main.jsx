@@ -14,6 +14,7 @@ import CreateToken from "./pages/createToken.jsx";
 import TradePage from "./pages/trade/tradePair/tradePage.jsx";
 import LiquidityPage from "./pages/liquidityPage.jsx";
 import { useMemo } from "react";
+import NotFound from "./pages/notFound.jsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,7 +51,7 @@ const router = createBrowserRouter([
     element: (
       <>
         <Navbar />
-        <SwapPage/>
+        <SwapPage />
         <Footer />
       </>
     ),
@@ -81,6 +82,17 @@ const router = createBrowserRouter([
       <>
         <Navbar />
         <LiquidityPage />
+        <Footer />
+      </>
+    )
+  }
+  ,
+  {
+    path: "*",
+    element: (
+      <>
+        <Navbar />
+        <NotFound />
         <Footer />
       </>
     )
