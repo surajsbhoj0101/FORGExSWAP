@@ -15,4 +15,4 @@ const tokenDataSchema = new mongoose.Schema({
 });
 
 
-export const tokenData = mongoose.model("tokenData", tokenDataSchema);
+export const tokenData = mongoose.model("tokenData", tokenDataSchema,'tokenDatas');

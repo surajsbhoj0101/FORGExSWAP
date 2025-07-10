@@ -11,8 +11,10 @@ import { toast } from "react-toastify";
 import { swapNativeTokens } from '../utils/swapNativeToken';
 import { IoClose } from "react-icons/io5";
 import { checkErcExists } from '../utils/checkTokenExists';
+import { useDebounce } from 'use-debounce';
 
 function Swap() {
+
   const { data: walletClient } = useWalletClient();
   const { isConnected, address } = useAccount();
   const nativeBalance = useBalance({ address, watch: true });
@@ -33,11 +35,13 @@ function Swap() {
   const [isFetchingQuotes, setFetchingQuotes] = useState(false);
   const [activeField, setActiveField] = useState('sell');
   const [customTokenAddr, setCustomTokenAddr] = useState();
+  const timeOutRef = useRef(null)
 
-  // ✅ New State for Transaction Info
+  // New State for Transaction Info
   const [txState, setTxState] = useState("");
   const [txHash, setTxHash] = useState("");
 
+  const abortControllerRef = useRef(null);
   const handleSellChange = (e) => {
     isUserInput.current = true;
     setValueData(prev => ({ ...prev, sell: e.target.value || "0" }));
@@ -125,14 +129,16 @@ function Swap() {
       setTxState("failed");
       console.error(err);
     } finally {
-      setValueData({ buy: "", sell: "", buyAddress: "", sellAddress: "" });
-      setTransactionPreview({ sellAmount: "", buyAmount: "", estimatedPrice: "", slippage: "" });
+
       setAvailableToken({ sellToken: "", buyToken: "" });
     }
   };
 
   //  CHECK PAIR & FETCH PRICE
   useEffect(() => {
+    abortControllerRef.current?.abort(); // Cancel previous fetch
+    abortControllerRef.current = new AbortController(); // Create new controller
+    const signal = abortControllerRef.current.signal;
     async function checkTokenExists() {
       setFetchingQuotes(true);
 
@@ -146,11 +152,11 @@ function Swap() {
         let result1 = { isExist: true };
         // Only check ERC existence if not native token (ZeroAddress)
         if (valueData.sellAddress !== ZeroAddress) {
-          result0 = await checkErcExists(valueData.sellAddress);
+          result0 = await checkErcExists(valueData.sellAddress, signal);
         }
 
         if (valueData.buyAddress !== ZeroAddress) {
-          result1 = await checkErcExists(valueData.buyAddress);
+          result1 = await checkErcExists(valueData.buyAddress, signal);
         }
 
         if (!result0.isExist || !result1.isExist) {
@@ -159,23 +165,33 @@ function Swap() {
         }
 
         setIsTokenExists(true);
-        await checkPairAndFetch();
-      } catch (error) {searchTerm
-        console.log(error);
+        if (timeOutRef.current) {
+          clearTimeout(timeOutRef.current)
+        }
+
+        timeOutRef.current = setTimeout(() => {
+          checkPairAndFetch(signal)
+        }, 500);
+
+      } catch (error) {
+        if (error.name === "AbortError") {
+          console.log("Request aborted");
+        } else {
+          console.error(error);
+        }
       } finally {
-        isUserInput.current = false;
         setFetchingQuotes(false);
       }
     }
 
 
-    const checkPairAndFetch = async () => {
+    const checkPairAndFetch = async (signal) => {
       if (valueData.buyAddress && valueData.sellAddress && isUserInput.current) {
-        const result = await checkPairExists(valueData.sellAddress, valueData.buyAddress);
+        const result = await checkPairExists(valueData.sellAddress, valueData.buyAddress, signal);
         if (result.exists) {
           setIsPairExists(true);
           setAboutPair("");
-          fetchPriceAndUpdate(result?.pairAddress);
+          fetchPriceAndUpdate(result?.pairAddress, signal);
         } else {
           setIsPairExists(false);
           setAboutPair("This pair contract doesn't exist");
@@ -188,14 +204,14 @@ function Swap() {
       }
     };
 
-    const fetchPriceAndUpdate = async (pairAddress) => {
+    const fetchPriceAndUpdate = async (pairAddress, signal) => {
       const wethAddrPair = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14";
       try {
         if (pairAddress !== wethAddrPair) {
           setFetchingQuotes(true); // optional, already set
 
           if (lastChanged === "sell") {
-            const data = await FetchPairData(valueData.sellAddress, valueData.sell, pairAddress);
+            const data = await FetchPairData(valueData.sellAddress, valueData.sell, pairAddress, signal);
             setValueData(prev => ({ ...prev, buy: data.amountOut }));
 
             setTransactionPreview(prev => ({
@@ -208,7 +224,7 @@ function Swap() {
               slippage: ((data.reserveOut / data.reserveIn - data.amountOut / data.amountIn) / (data.reserveOut / data.reserveIn)) * 100,
             }));
           } else if (lastChanged === "buy") {
-            const data = await FetchPairData(valueData.buyAddress, valueData.buy, pairAddress);
+            const data = await FetchPairData(valueData.buyAddress, valueData.buy, pairAddress, signal);
             setValueData(prev => ({ ...prev, sell: data.amountOut }));
 
             setTransactionPreview(prev => ({
@@ -246,20 +262,27 @@ function Swap() {
     };
 
     checkTokenExists();
+    return () => {
+      abortControllerRef.current?.abort();
+    };
   }, [valueData, lastChanged]);
 
 
   useEffect(() => {
     async function fetchBalance(params) {
-      if (isConnected && (valueData?.buyAddress !== "" || valueData?.sellAddress !== "")) {
-        const token0 = await getAmountHold(address, valueData?.sellAddress);
-        const token1 = await getAmountHold(address, valueData?.buyAddress);
+      if (isConnected && (valueData?.buyAddress !== "" || valueData?.sellAddress !== "") && (valueData?.buyAddress !== ZeroAddress || valueData?.sellAddress !== ZeroAddress)) {
+        try {
+          const token0 = await getAmountHold(address, valueData?.sellAddress);
+          const token1 = await getAmountHold(address, valueData?.buyAddress);
 
-        setAvailableToken((prev) => ({
-          ...prev,
-          sellToken: token0,
-          buyToken: token1
-        }))
+          setAvailableToken((prev) => ({
+            ...prev,
+            sellToken: token0,
+            buyToken: token1
+          }))
+        } catch (error) {
+          console.log(error)
+        }
       }
     }
     fetchBalance();
@@ -295,9 +318,12 @@ function Swap() {
         </div>
         <button
           onClick={() => {
+
             setIsSwapping(false);
             setTxState("");
             setTxHash("");
+            setValueData({ buy: "", sell: "", buyAddress: "", sellAddress: "" });
+            setTransactionPreview({ sellAmount: "", buyAmount: "", estimatedPrice: "", slippage: "" });
           }}
           title="Close"
           className="text-red-500 hover:text-red-700"

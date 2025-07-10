@@ -5,19 +5,23 @@ import multer from "multer";
 import { Blob } from "buffer";
 import FormData from 'form-data'
 import fs from "fs";
+import dotenv from 'dotenv'
 import path from "path";
 import { PinataSDK } from "pinata";
 import { tokenData } from "./modals/tokenDataSchema.js"; // ensure .js or .ts based on your project
 
-
-let conn = await mongoose.connect("mongodb://localhost:27017/TokenData");
+dotenv.config();
+console.log(tokenData.collection.name)
+const mongoUri = process.env.MONGO_URI;
+let conn = await mongoose.connect(mongoUri);
+console.log(conn.connection.name)
 const app = express();
-const port = 3002;
+const port = process.env.PORT;
 app.use(cors());
 
 const storage = multer.diskStorage({ //middleware
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Make sure this folder exists
+    cb(null, 'uploads/'); 
   },
   filename: (req, file, cb) => {
     const uniqueName = Date.now() + '-' + file.originalname;
@@ -31,8 +35,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }))
 
 const pinata = new PinataSDK({
-  pinataJwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIxNDUxMTdmZi1iYTI4LTQxODQtOTUxYi1kYmFkZGEwNGZhNDgiLCJlbWFpbCI6InN1cmFqYmhvajAxMDFAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjEwMWY0ZDZmZTVmN2NjZDI4MTE2Iiwic2NvcGVkS2V5U2VjcmV0IjoiODkwYTE2YmViMWU3NDhlZTJkODM4YjdjMmJiYjNmNzNlNGViOThlMGYzMjMzOWEzNWQ5YmExN2Q2OWQxNmUzNSIsImV4cCI6MTc4MjQ3MjY5OH0.m41Djro-3im8CljhEs_uJRWgZ7NfPLXLRt65rjMqEBg",
-  pinataGateway: "scarlet-naval-lizard-255.mypinata.cloud"
+  pinataJwt: process.env.PINATA_JWT,
+  pinataGateway: process.env.PINATA_GATEWAY
 });
 
 
@@ -93,6 +97,7 @@ app.post("/tokenData", async (req, res) => {
 app.get('/fetchPair/:pairAddress', async (req, res) => {
   try {
     const { pairAddress } = req.params
+    console.log(pairAddress,"add")
     const pair = await tokenData.findOne({ pairAddress })
     if (!pair) {
       return res.status(404).json({ message: "pair not found" })
