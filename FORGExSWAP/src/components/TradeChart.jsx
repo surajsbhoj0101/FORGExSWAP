@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import { gql, request } from 'graphql-request';
+import { useTheme } from "../contexts/ThemeContext";
 
 const syncQuery = gql`
   query LatestCandleSync($pair: Bytes!) { 
@@ -19,10 +20,11 @@ const syncQuery = gql`
   }
 `;
 
-const url = 'https://api.studio.thegraph.com/query/113184/sepolia-v-2-price-feed/version/latest';
-const headers = { Authorization: `Bearer ff06a2cbebb8a0e457b1904571cb9b50` };
+const url = import.meta.env.VITE_GRAPH_URL;
+const headers = { Authorization: `Bearer ${import.meta.env.VITE_GRAPH_KEY}` };
 
 const TradeChart = ({ pairAddress, tokenA, tokenB }) => {
+    const { isDarkMode } = useTheme()
     const [series, setSeries] = useState();
 
     function sortTokens(tokenA, tokenB) {
@@ -76,14 +78,19 @@ const TradeChart = ({ pairAddress, tokenA, tokenB }) => {
                 <ReactApexChart
                     options={{
                         chart: { type: "candlestick", height: 350 },
-                        xaxis: { type: "datetime" },
+                        xaxis: { type: "datetime" }, tooltip: {
+                            theme: isDarkMode ? 'dark' : 'light',
+                            style: {
+                                color: isDarkMode ? '#000' : '#fff'
+                            }
+                        },
                         yaxis: { tooltip: { enabled: true } },
                         title: { text: "Price Candles", align: "left" },
-                        plotOptions:{
-                            candlestick:{
-                                colors:{
-                                    upward:'#00ff00',
-                                    downward:'#ff0000'
+                        plotOptions: {
+                            candlestick: {
+                                colors: {
+                                    upward: '#00ff00',
+                                    downward: '#ff0000'
                                 }
                             }
                         }

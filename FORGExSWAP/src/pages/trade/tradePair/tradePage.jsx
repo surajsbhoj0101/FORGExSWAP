@@ -297,6 +297,11 @@ function TradePage() {
               <div className="text-gray-600 dark:text-gray-400">Pool Address</div>
               <div className="break-all font-mono text-xs">{Data?.pairAddress}</div>
             </div>
+
+            <div className="bg-gray-200 dark:bg-gray-800 p-3 rounded">
+              <div className="text-gray-600 dark:text-gray-400">Total Supply</div>
+              <div className="break-all font-mono text-xs">{Data?.customTokenTotalSupply}</div>
+            </div>
             
           </div>
 

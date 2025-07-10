@@ -145,7 +145,7 @@ function TokenCreate() {
             const signer = await provider.getSigner();
 
             const customTokenResult = await handleTokenCreation(tokenName, tokenSymbol, tokenSupply, signer);
-            if (!customToken.isTxSuccessful) {
+            if (!customTokenResult.isTxSuccessful) {
                 toast.error("Token creation failed");
                 return;
             }
@@ -174,7 +174,7 @@ function TokenCreate() {
                 pairAddress: liqAdd.pairAddress,
                 customTokenName: tokenName,
                 secondaryTokenName: secondaryTokenName,
-                customToken: customToken.address,
+                customToken: customTokenResult.address,
                 secondaryTokenAddress: secondaryTokenAddress,
                 customTokenTotalSupply: tokenSupply,
                 secondaryTokenTotalSupply: secondaryTokenTotalSupply,

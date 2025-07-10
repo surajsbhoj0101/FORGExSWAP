@@ -7,6 +7,8 @@ import IUniswapV2Factory from "@uniswap/v2-core/build/IUniswapV2Factory.json";
 const routerAddress = "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3";
 
 export async function addLiquidity(token0Address, token1Address, token0Amount, token1Amount, signer, toAddress, isTokenCreation) {
+    token0Amount = String(Number(token0Amount).toFixed(8))
+    token1Amount = String(Number(token1Amount).toFixed(8))
     const token0Contract = new Contract(token0Address, IERC20.abi, signer);
     const token1Contract = new Contract(token1Address, IERC20.abi, signer);
 
@@ -56,6 +58,12 @@ export async function addLiquidity(token0Address, token1Address, token0Amount, t
         deadline
     );
     const receipt = await tx.wait();
+
+    if (!isTokenCreation) {
+        return {
+            isTxSuccessful: !!tx.hash,
+        }
+    }
 
     const iface = new Interface(IUniswapV2Factory.abi);
 
