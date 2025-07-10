@@ -478,12 +478,12 @@ function Swap() {
             </div>
 
             {/* Swap Button & Preview */}
-            <div className="w-full flex flex-col items-center justify-center">
+            <div className="w-full mt-2 flex flex-col items-center justify-center">
               {isConnected ? (
                 isPairExists ? (
                   isFetchingQuotes ? (
                     <div className="w-full space-x-4 dark:bg-gray-600 flex items-center justify-center py-3 rounded-lg bg-gray-400 text-white font-semibold transition duration-200">
-                      <div>Fetching quotes</div>
+                      <div>Fetching quotes ...</div>
                       <div className="border-dashed rounded-full h-3 w-3 p-2 animate-spin border-2 border-blue-500"></div>
                     </div>
                   ) : (

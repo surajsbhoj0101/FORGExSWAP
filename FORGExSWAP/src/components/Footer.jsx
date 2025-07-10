@@ -12,11 +12,19 @@ function Footer() {
   const { isDarkMode, toggleDark } = useTheme();
   return (
     <div className="fixed px-2 justify-between items-center bottom-0 left-0  z-50  w-full bg-white dark:bg-gray-900 hidden min-[914px]:flex">
-      <div></div>
       <div className="flex space-x-1 items-center">
         <div className="text-gray-700 px-2 rounded-xs hover:dark:bg-gray-800 hover:bg-gray-300 dark:text-gray-200 flex space-x-1 text-sm font-semibold items-center">
           <FaRegLightbulb />
-          <Link to="#" className="hover:text-cyan-500 transition">
+          <Link to="mailto:surajsbhoj@gmail.com" className="hover:text-cyan-500 transition">
+            Contact
+          </Link>
+        </div>
+
+      </div>
+      <div className="flex space-x-1 items-center">
+        <div className="text-gray-700 px-2 rounded-xs hover:dark:bg-gray-800 hover:bg-gray-300 dark:text-gray-200 flex space-x-1 text-sm font-semibold items-center">
+          <FaRegLightbulb />
+          <Link to="https://docs.google.com/forms/d/e/1FAIpQLSfkBQfrWGKZA2De8KQ7tIlXsJSBP6dGIP6ElwaorH5dyo2Oig/viewform" className="hover:text-cyan-500 transition">
             Feedback
           </Link>
         </div>
@@ -29,7 +37,7 @@ function Footer() {
         </div>
 
         <div className="text-gray-700 px-2 rounded-xs hover:dark:bg-gray-800 hover:bg-gray-300 dark:text-gray-200 flex space-x-1 text-sm font-semibold items-center">
-          <Link to="#" className=" transition">
+          <Link to="https://github.com/surajsbhoj0101/FORGExSWAP" className=" transition">
             <FaGithub size={20} />
           </Link>
         </div>

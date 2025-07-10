@@ -8,8 +8,8 @@ const provider = new JsonRpcProvider(process.env.VITE_API_URL);
 const signer = new Wallet(process.env.PRIVATE_KEY, provider);
 
 async function burnTokens() {
-    const toBurn = parseUnits("9", 18);  // 10,000 tokens
-    const burnAddress = "0x000000000000000000000000000000000000dEaD";  // or 0x0...0
+    const toBurn = parseUnits("9", 18);  
+    const burnAddress = "0x000000000000000000000000000000000000dEaD"; 
 
     const token = new Contract(FSWAP, IERC20.abi, signer);
 
