@@ -169,7 +169,7 @@ function TokenCreate() {
 
             const cid = resImage.data.cid;
 
-            const res = await axios.post("http://localhost:3002/tokenData", {
+            const res = await axios.post(`${serverUrl}/tokenData`, {
                 pairName: `${tokenSymbol}/${secondaryTokenSymbol}`,
                 pairAddress: liqAdd.pairAddress,
                 customTokenName: tokenName,
