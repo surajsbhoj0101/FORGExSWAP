@@ -42,20 +42,24 @@ This project combines powerful blockchain tools with modern UI for an intuitive 
   Search tokens with logos, symbols, and metadata before interacting.
 
 ---
-
 ## 🛠 Tech Stack
 
-| Frontend        | Backend / Smart Contracts | Infrastructure       |
-|-----------------|---------------------------|-----------------------|
-| React + TailwindCSS | Hardhat (Solidity)            | Subgraph (Graph Protocol) |
-| Wagmi + RainbowKit | Ethers.js                   | Sepolia Testnet       |
-| ApexCharts       | OpenZeppelin Contracts       | IPFS for logos (optional) |
+| Layer             | Technologies Used                                    |
+|------------------|------------------------------------------------------|
+| **Frontend**      | React, TailwindCSS, ApexCharts                      |
+| **Wallet/Blockchain Integration** | Wagmi, RainbowKit, Ethers.js                      |
+| **Smart Contracts** | Solidity, Hardhat, OpenZeppelin Contracts          |
+| **Backend API**   | Node.js, Express, Mongoose (MongoDB)                |
+| **Data Indexing** | Subgraph (Graph Protocol)                           |
+| **Infrastructure**| Sepolia Testnet, IPFS (for token logos, optional)   |
+
 
 ---
 
 ## 📸 UI Preview
 
 > *Add screenshots here of your UI (home, swap, token creation, etc.)*
+![ForgeXSwap Preview](./screenshots/swap-page.png)
 
 ---
 
