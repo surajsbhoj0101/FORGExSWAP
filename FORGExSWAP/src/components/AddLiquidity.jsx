@@ -123,7 +123,7 @@ function AddLiquidity() {
                     const ratio = data.reserveOut / data.reserveIn;
                     setPairData(prev => ({ ...prev, token1Value }));
                     setPriceRatio(ratio);
-                    const expLpTokens = Math.min(pairData.token0Value * data.totalSupply / data.reserveIn, pairData.token1Value * data.totalSupply / data.reserveOut)
+                    const expLpTokens = Math.min(Number(pairData.token0Value * data.totalSupply / data.reserveIn, pairData.token1Value * data.totalSupply / data.reserveOut))
                     const poolShare = (expLpTokens / data.totalSupply) * 100
                     setShareOfPool(poolShare);
                     setLpTokens(expLpTokens);
@@ -134,7 +134,7 @@ function AddLiquidity() {
                     const ratio = data.reserveIn / data.reserveOut;
                     setPairData(prev => ({ ...prev, token0Value }));
                     setPriceRatio(ratio);
-                    const expLpTokens = Math.min(pairData.token0Value * data.totalSupply / data.reserveIn, pairData.token1Value * data.totalSupply / data.reserveOut)
+                    const expLpTokens = Math.min(Number(pairData.token0Value * data.totalSupply / data.reserveIn, pairData.token1Value * data.totalSupply / data.reserveOut))
                     const poolShare = (expLpTokens / data.totalSupply) * 100
                     setShareOfPool(poolShare);
                     setLpTokens(expLpTokens);
