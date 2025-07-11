@@ -59,7 +59,15 @@ This project combines powerful blockchain tools with modern UI for an intuitive 
 ## 📸 UI Preview
 
 > *Add screenshots here of your UI (home, swap, token creation, etc.)*
-![ForgeXSwap Preview](./screenshots/swap-page.png)
+### 🔄 Swap Page
+![Swap Page](./screenshots/swap_page.png)
+
+### Trade Page
+![Token Creation](./screenshots/trade.png)
+
+### 💧 Add Liquidity 
+![Liquidity](./screenshots/liquidity.png)
+
 
 ---
 
