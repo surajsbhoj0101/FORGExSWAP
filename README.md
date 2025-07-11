@@ -7,9 +7,7 @@ At its heart, ForgeXSwap provides complete on-chain functionality for:
 - 🪙 **ERC20 Token Creation**: Deploy your own fungible tokens with customizable parameters directly from the UI.
 - 💧 **Liquidity Provisioning**: Add and remove liquidity for any token pair, earn swap fees, and view your pool share.
 - 🔄 **Token Swapping**: Instantly swap between any available ERC20 token pairs using a router that mirrors Uniswap V2’s logic.
-- 📈 **Live Charting and Trade Metrics**: Visualize price movements, token ratios, and slippage with real-time ApexCharts-based data presentation.
-
-ForgeXSwap was built with a clean, responsive frontend using **React**, **Tailwind CSS**, and **ApexCharts** for visual analytics. Wallet connectivity and smart contract interactions are handled by a powerful stack including **Wagmi**, **RainbowKit**, and **Ethers.js**, ensuring seamless integration between users and the Ethereum blockchain.
+- 📈 **Live Charting and Trade Metrics**: Visualize price movements, token ratios, and slippage with real-time ApexCharts-based data presentation and subgraph indexing using the graph.
 
 This project isn’t just a DEX — it's a demonstration of how powerful and modular Web3 applications can be. Whether you're a user who wants to test liquidity strategies on a safe testnet environment or a developer looking to dive deep into DeFi protocols, **ForgeXSwap** offers a fully transparent and extensible platform to experiment with decentralized finance.
 
@@ -21,10 +19,6 @@ This project isn’t just a DEX — it's a demonstration of how powerful and mod
 - Acts as a base template for building your own DeFi protocols
 
 ForgeXSwap stands at the intersection of usability and education — perfect for learning, testing, and building in the decentralized Web3 space.
-
-
-
-
 
 This project combines powerful blockchain tools with modern UI for an intuitive and secure trading experience.
 
