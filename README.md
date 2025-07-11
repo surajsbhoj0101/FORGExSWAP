@@ -69,12 +69,89 @@ This project combines powerful blockchain tools with modern UI for an intuitive 
 ![Liquidity](./screenshots/liquidity.png)
 
 
----
-
 ## 🧪 Run Locally
 
-### 1. Clone the repo
+### 🔧 Prerequisites
+
+- Node.js and npm installed
+- MongoDB Atlas URI
+- Alchemy RPC key (Sepolia)
+- IPFS JWT (Pinata, optional)
+- Subgraph authentication and URL
+
+---
+
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/ForgeXSwap.git
-cd ForgeXSwap
+git clone https://github.com/surajsbhoj0101/FORGExSWAP
+
+```
+****
+### 1. Frontend Setup
+```bash
+cd FORGEXSWAP
+npm install
+```
+
+### 2. Get API key
+- VITE_ALCHEMY_RPC=<your_rpc_url>
+- VITE_FACTORY_CONTRACT=<deployed_factory_address>
+- VITE_GRAPH_URL=<your_subgraph_url>
+- VITE_PINATA_JWT=<optional_if_using_IPFS>
+
+### 3. Start 
+```bash
+npm run dev
+```
+***
+### 1. Backend setup
+```bash
+cd Backend
+npm install
+```
+
+### 2. Setup mongodb atlas
+- Get mongo uri
+
+### 3. Start sever
+```bash
+ npm run backend
+```
+
+***
+### Smart Contract deployment
+```bash
+npm install
+```
+- Get api key
+ - create account in alchemy and get api key and url for rpc
+  
+- Compile and deploy the factory Contract
+```bash
+npx hardhat compile
+npx hardhat run scripts/deploy.mjs --network sepolia
+```
+
+### 4. Get the factory contract address and use it in frontend token create utility
+***
+### subgraph setup
+```bash
+cd subgraphForPriceFeed
+graph codegen && graph build
+```
+- Create account in graph.com and get the authentication key and deploy
+```bash
+graph deploy sepolia-v-2-price-feed
+```
+- Get graph key and Url , use it frontend
+***
+### 📚 Learning Resources
+- Uniswap V2 AMM mechanics
+- Liquidity pool mathematics
+- Decentralized exchange architecture
+- The Graph protocol for data indexing
+
+# 🤝 Contributing
+- Contributions are welcome! Please open an issue or submit a PR for any improvements.
+
