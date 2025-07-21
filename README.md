@@ -58,7 +58,7 @@ This project combines powerful blockchain tools with modern UI for an intuitive 
 
 ## 📸 UI Preview
 
-> *Add screenshots here of your UI (home, swap, token creation, etc.)*
+
 ### 🔄 Swap Page
 ![Swap Page](./screenshots/swap_page.png)
 
